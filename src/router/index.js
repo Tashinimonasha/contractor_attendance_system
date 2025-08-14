@@ -43,6 +43,7 @@ const routes = [
       { path: 'hr', name: 'HRDashboard', component: HRDashboard, meta: { role: 'HR' } },
       { path: 'finance', name: 'FinanceDashboard', component: FinanceDashboard, meta: { role: 'Finance' } },
       { path: 'manager', name: 'ManagerDashboard', component: ManagerDashboard, meta: { role: 'Manager' } },
+      { path: 'workers', name: 'WorkerManagement', component: () => import('../views/WorkerManagement.vue'), meta: { role: 'All' } },
     ]
   },
   

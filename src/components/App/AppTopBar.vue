@@ -1,7 +1,8 @@
 <template>
   <v-app-bar flat class="border-b">
+    <v-img src="/src/assets/printcareLogo.png" alt="Printcare Logo" max-width="180" height="110" class="ml-4 mr-10 align-center" />
     <v-app-bar-title class="font-weight-bold">
-      {{ authStore.userRole }} Dashboard
+      <!-- You can add dashboard title here if needed -->
     </v-app-bar-title>
     <v-spacer></v-spacer>
     
