@@ -22,23 +22,44 @@
           </v-col>
         </v-row>
         
-        <!-- User Lists and Actions -->
-        <v-row class="mt-4">
-          <v-col cols="12" md="7">
-            <v-card rounded="lg">
-              <v-card-title>Recent System Users</v-card-title>
-              <!-- A list of users would go here -->
+        <!-- Analytics Filter & Charts Section (2x2 grid) -->
+        <div class="d-flex align-center mb-4">
+          <span class="text-h6 font-weight-bold mr-auto">Analytics</span>
+          <v-select
+            v-model="selectedPeriod"
+            :items="['Daily', 'Weekly', 'Monthly']"
+            label="Period"
+            dense
+            hide-details
+            style="max-width: 140px;"
+          />
+        </div>
+        <v-row class="mb-8">
+          <v-col cols="12" md="6">
+            <v-card rounded="lg" class="pa-4 mb-4">
+              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Company</div>
+              <PieChart :chart-data="filteredCompanyData" />
             </v-card>
           </v-col>
-          <v-col cols="12" md="5">
-            <v-card rounded="lg" color="warning" variant="tonal">
-              <v-card-title>Actions Required</v-card-title>
-              <!-- List of actions, like password resets -->
+          <v-col cols="12" md="6">
+            <v-card rounded="lg" class="pa-4 mb-4">
+              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Department</div>
+              <BarChart :chart-data="filteredDepartmentData" />
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card rounded="lg" class="pa-4 mb-4">
+              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Contractor</div>
+              <PieChart :chart-data="filteredContractorData" />
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card rounded="lg" class="pa-4 mb-4">
+              <div class="text-subtitle-1 font-weight-bold mb-2">Current Status</div>
+              <PieChart :chart-data="filteredStatusData" />
             </v-card>
           </v-col>
         </v-row>
-  <!-- ...charts removed, only Worker Management table will show... -->
-  <!-- ...Worker Management table removed, only shown in WorkerManagement.vue... -->
       </div>
     </div>
   </div>
@@ -76,6 +97,9 @@ const workerRecords = [
   { name: 'Nimal Jayasinghe', nic: '198790123456', company: 'PDSL', department: 'Sales & Customer Service', contractor: 'Elite Workforce', status: 'Checked Out', checkIn: '08:30', checkOut: '16:30', duration: '8h 0m', active: false },
   { name: 'Dilani Wijesinghe', nic: '199456789012', company: 'PCL', department: 'Design & Pre-media', contractor: 'Professional Staff', status: 'Checked In', checkIn: '08:15', checkOut: '-', duration: '', active: true },
 ];
+import { ref, computed } from 'vue';
+const selectedPeriod = ref('Daily');
+
 const companyData = {
   labels: ['PCL', 'PUL', 'PPM', 'PDSL'],
   datasets: [{
@@ -104,4 +128,10 @@ const statusData = {
     backgroundColor: ['#4CAF50', '#F44336'],
   }],
 };
+
+// Stub: Filter logic for charts (replace with real filter logic as needed)
+const filteredCompanyData = computed(() => companyData);
+const filteredDepartmentData = computed(() => departmentData);
+const filteredContractorData = computed(() => contractorData);
+const filteredStatusData = computed(() => statusData);
 </script>

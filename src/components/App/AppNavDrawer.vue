@@ -75,12 +75,27 @@ export default {
   },
   methods: {
     goTo(tab) {
-      // All dashboard pages are under /dashboard/{tab}
-      this.$router.push({ path: `/dashboard/${tab}` });
+      // Use named routes for reliability
+      const routeMap = {
+        admin: 'AdminDashboard',
+        workers: 'WorkerManagement',
+        'system-users': 'SystemUsersDashboard',
+        management: 'ManagementDashboard',
+      };
+      const routeName = routeMap[tab];
+      if (routeName) {
+        this.$router.push({ name: routeName });
+      }
     },
     isActive(tab) {
-      // Highlight if current route matches dashboard tab
-      return this.$route.path === `/dashboard/${tab}`;
+      // Use named routes for active highlighting
+      const routeMap = {
+        admin: 'AdminDashboard',
+        workers: 'WorkerManagement',
+        'system-users': 'SystemUsersDashboard',
+        management: 'ManagementDashboard',
+      };
+      return this.$route.name === routeMap[tab];
     },
   },
 };
