@@ -1,132 +1,64 @@
 <template>
   <v-navigation-drawer
-    v-model="drawer"
-    :width="drawerWidth"
-    :mini-variant="mini"
-    :permanent="$vuetify.display.smAndUp"
-    class="app-nav-drawer"
-    :color="navColor"
+    :model-value="modelValue"
+    @update:model-value="$emit('update:modelValue', $event)"
+    :rail="railMode"
+    :expand-on-hover="isDesktop"
+    :temporary="!isDesktop"
+    app
   >
+    <!-- Logo -->
+    <v-list-item class="pa-3" nav>
+      <v-list-item-avatar start>
+        <v-img :src="logo" width="200"></v-img>
+      </v-list-item-avatar>
+      
+      <template v-if="!isDesktop" v-slot:append>
+        <v-btn
+          variant="text"
+          icon="mdi-chevron-left"
+          @click.stop="$emit('update:modelValue', false)"
+        ></v-btn>
+      </template>
+    </v-list-item>
+
+    <v-divider></v-divider>
+
+    <!-- Navigation Links -->
     <v-list density="compact" nav>
-      <!-- Sidebar Navigation Items (reference style) -->
       <v-list-item
-        :active="isActive('admin')"
-        @click="goTo('admin')"
-        class="nav-list-item"
-        link
-      >
-        <template #prepend>
-          <v-icon icon="mdi-chart-pie" />
-        </template>
-        <v-list-item-title>Overview</v-list-item-title>
-      </v-list-item>
-      <v-list-item
-        :active="isActive('workers')"
-        @click="goTo('workers')"
-        class="nav-list-item"
-        link
-      >
-        <template #prepend>
-          <v-icon icon="mdi-account-group" />
-        </template>
-        <v-list-item-title>Workers</v-list-item-title>
-      </v-list-item>
-      <v-list-item
-        :active="isActive('system-users')"
-        @click="goTo('system-users')"
-        class="nav-list-item"
-        link
-      >
-        <template #prepend>
-          <v-icon icon="mdi-account-cog" />
-        </template>
-        <v-list-item-title>System Users</v-list-item-title>
-      </v-list-item>
-      <v-list-item
-        :active="isActive('management')"
-        @click="goTo('management')"
-        class="nav-list-item"
-        link
-      >
-        <template #prepend>
-          <v-icon icon="mdi-briefcase" />
-        </template>
-        <v-list-item-title>Management</v-list-item-title>
-      </v-list-item>
+        v-for="item in navItems"
+        :key="item.title"
+        :prepend-icon="item.icon"
+        :title="item.title"
+        :to="item.to"
+        rounded="lg"
+        class="mx-2 my-1"
+      ></v-list-item>
     </v-list>
-    <!-- ...existing code... -->
   </v-navigation-drawer>
 </template>
 
-<script>
-export default {
-  name: 'AppNavDrawer',
-  data() {
-    return {
-      drawer: true,
-      mini: false,
-      drawerWidth: 260,
-    };
-  },
-  computed: {
-    navColor() {
-      return this.$vuetify.theme.dark ? 'grey-darken-4' : 'grey-lighten-5';
-    },
-  },
-  methods: {
-    goTo(tab) {
-      // Use named routes for reliability
-      const routeMap = {
-        admin: 'AdminDashboard',
-        workers: 'WorkerManagement',
-        'system-users': 'SystemUsersDashboard',
-        management: 'ManagementDashboard',
-      };
-      const routeName = routeMap[tab];
-      if (routeName) {
-        this.$router.push({ name: routeName });
-      }
-    },
-    isActive(tab) {
-      // Use named routes for active highlighting
-      const routeMap = {
-        admin: 'AdminDashboard',
-        workers: 'WorkerManagement',
-        'system-users': 'SystemUsersDashboard',
-        management: 'ManagementDashboard',
-      };
-      return this.$route.name === routeMap[tab];
-    },
-  },
-};
+<script setup>
+import { computed } from 'vue';
+import { useDisplay } from 'vuetify';
+import logo from '@/assets/printcareLogo.png';
+
+const props = defineProps({ modelValue: Boolean });
+defineEmits(['update:modelValue']);
+
+const { mdAndUp: isDesktop } = useDisplay();
+
+// The navigation drawer should be in "rail" mode (small icons) ONLY on desktop
+// when it is not being hovered. We control this manually.
+const railMode = computed(() => {
+  return isDesktop.value && props.modelValue;
+});
+
+const navItems = [
+  { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/admin/overview' },
+  { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: '/admin/workers' },
+  { title: 'System Users', icon: 'mdi-account-group-outline', to: '#' },
+  { title: 'Management', icon: 'mdi-cog-outline', to: '/admin/management' },
+];
 </script>
-<style scoped>
-.custom-side-nav {
-  min-height: 100vh;
-  border-right: 1px solid #e0e0e0;
-  transition: background-color 0.3s;
-}
-.v-list-item {
-  border-radius: 8px;
-  margin-bottom: 4px;
-  transition: background 0.2s;
-}
-.v-list-item--active {
-  background: #43a047 !important;
-  color: #fff !important;
-}
-.v-list-item-title {
-  font-weight: 500;
-}
-.v-list-item-icon {
-  margin-right: 12px;
-}
-@media (max-width: 600px) {
-  .custom-side-nav {
-    width: 56px !important;
-  }
-  .v-list-item-title {
-    display: none !important;
-  }
-}
-</style>
