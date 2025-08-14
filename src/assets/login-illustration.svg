@@ -1,0 +1,5 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="60" fill="#E0E7FF"/>
+  <rect x="35" y="50" width="50" height="30" rx="8" fill="#6366F1"/>
+  <text x="60" y="70" text-anchor="middle" fill="#fff" font-size="16" font-family="Arial">Login</text>
+</svg>

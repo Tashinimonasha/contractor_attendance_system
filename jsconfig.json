@@ -18,6 +18,11 @@
     ]
   },
   "exclude": [
-    "src/view/LoginView.vue"
+    "src/views/LoginView.vue",
+    "src/views/Admin/AdminDashboard.vue",
+    "src/views/Finance/FinanceDashboard.vue",
+    "src/views/HR/HRDashboard.vue",
+    "src/views/Manager/ManagerDashboard.vue",
+    "src/views/Guard/GuardScanView.vue"
   ]
 }

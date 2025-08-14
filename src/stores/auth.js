@@ -58,6 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     // After password change, route them to their final destination
     routeUserToDestination();
   }
+ 
 
   function logout() {
     user.value = null;

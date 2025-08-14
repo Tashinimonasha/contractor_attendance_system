@@ -19,12 +19,13 @@ const myCustomLightTheme = {
   colors: {
     background: '#f4f7f9', // Light grey background
     surface: '#ffffff',
-    primary: '#1976D2', // A professional blue
+    primary: '#59dd66ff', // A professional blue
     secondary: '#424242',
     error: '#B00020',
     info: '#2196F3',
     success: '#4CAF50',
     warning: '#FB8C00',
+    
   },
 };
 
@@ -33,8 +34,9 @@ const myCustomDarkTheme = {
   colors: {
     background: '#121212',
     surface: '#1E1E1E',
-    primary: '#BB86FC',
+    primary: '#59dd66ff',
     secondary: '#03DAC6',
+     
   },
 };
 
