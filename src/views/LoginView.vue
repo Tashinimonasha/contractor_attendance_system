@@ -2,25 +2,67 @@
 <template>
   <v-container fluid class="pa-0 fill-height">
     <v-row class="fill-height" no-gutters>
- 
-      <v-col
-        cols="12"
-        md="6" 
-        class="decorative-panel d-flex flex-column justify-center align-center"
-      >
+      <!-- Mobile: Only logo and sign-in form -->
+      <v-col cols="12" class="d-flex flex-column justify-center align-center d-md-none pa-4">
+        <v-card flat max-width="100%" class="pa-8 mx-auto mobile-signin-card text-center" width="100%">
+          <v-img :src="logo" max-width="220" class="mx-auto mb-8" />
+          <h2 class="text-h5 font-weight-bold mb-4">Sign In</h2>
+          <p class="text-body-1 mb-8 text-medium-emphasis">Please enter your credentials to proceed.</p>
+          <template v-if="!showChangePassword">
+            <v-form @submit.prevent="handleLogin">
+              <v-text-field
+                v-model="email"
+                label="Email"
+                prepend-inner-icon="mdi-email-outline"
+                variant="outlined"
+                rounded="lg"
+                class="mb-4"
+                required
+              ></v-text-field>
+              <v-text-field
+                v-model="password"
+                label="Password"
+                :type="showPassword ? 'text' : 'password'"
+                prepend-inner-icon="mdi-lock-outline"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="showPassword = !showPassword"
+                variant="outlined"
+                rounded="lg"
+                required
+                class="mb-4"
+              ></v-text-field>
+              <v-btn
+                :loading="loading"
+                type="submit"
+                color="blue"
+                block
+                size="large"
+                rounded="lg"
+                class="mt-6"
+              >
+                Sign In
+              </v-btn>
+            </v-form>
+            <v-btn variant="text" color="blue" class="mt-4" @click="showChangePassword = true">Forgot Password?</v-btn>
+          </template>
+          <template v-else>
+            <change-password-dialog :model-value="true" :persistent="false" @update:model-value="showChangePassword = false" />
+          </template>
+        </v-card>
+      </v-col>
+      <!-- Desktop: Full panel and illustration -->
+      <v-col cols="12" md="6" class="decorative-panel d-none d-md-flex flex-column justify-center align-center">
         <div class="text-center pa-8">
-          <v-img :src="logo" max-width="750"class="mx-auto mb-6" />
-          <h1 class="text-h3 font-weight-bold mb-2 text-primary">Welcome to Printcare</h1>
-          <p class="text-h7 font-weight-light mb-10 text-on-surface ">Secure attendance management for external contractors</p>
+          <v-img :src="logo" max-width="750" class="mx-auto mb-6" />
+          <h1 class="text-h3 font-weight-bold mb-2 text-blue">Welcome to Printcare</h1>
+          <p class="text-h6 font-weight-light mb-10 subtitle-text">Secure attendance management for external contractors</p>
           <v-img :src="illustration" max-width="400" class="mx-auto" />
         </div>
       </v-col>
-
-      <v-col cols="12" md="6" class="d-flex justify-center align-center">
+      <v-col cols="12" md="6" class="d-none d-md-flex justify-center align-center">
         <v-card flat max-width="450" class="pa-4 pa-md-8 mx-auto" width="100%">
           <h2 class="text-h5 font-weight-bold mb-2">Sign In</h2>
           <p class="text-body-1 mb-8 text-medium-emphasis">Please enter your credentials to proceed.</p>
-
           <template v-if="!showChangePassword">
             <v-form @submit.prevent="handleLogin">
               <v-text-field
@@ -46,7 +88,7 @@
               <v-btn
                 :loading="loading"
                 type="submit"
-                color="primary"
+                color="blue"
                 block
                 size="large"
                 rounded="lg"
@@ -55,7 +97,7 @@
                 Sign In
               </v-btn>
             </v-form>
-            <v-btn variant="text" color="primary" class="mt-2" @click="showChangePassword = true">Forgot Password?</v-btn>
+            <v-btn variant="text" color="blue" class="mt-2" @click="showChangePassword = true">Forgot Password?</v-btn>
           </template>
           <template v-else>
             <change-password-dialog :model-value="true" :persistent="false" @update:model-value="showChangePassword = false" />
@@ -106,5 +148,12 @@ const handleLogin = async () => {
 }
 .v-theme--dark .decorative-panel {
     background-color: #1a1a1a;
+}
+/* Make subtitle text visible in dark mode */
+.subtitle-text {
+  color: #7e8a9a;
+}
+.v-theme--dark .subtitle-text {
+  color: #bfc8d6 !important;
 }
 </style>
