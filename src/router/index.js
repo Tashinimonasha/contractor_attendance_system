@@ -58,28 +58,49 @@ const router = createRouter({
   routes,
 });
 
-// Your existing router.beforeEach guard logic remains the same
+// src/router/index.js
+
+// ... (ඉහළින් ඇති imports සහ routes array එක එලෙසම තබන්න) ...
+
+// --- NAVIGATION GUARD ---
+// This logic is now corrected to prevent the 'toLowerCase of undefined' error.
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
+  
+  // If route requires authentication and user is not logged in
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'Login' });
-  } else if (to.name === 'Login' && authStore.isAuthenticated) {
-    const role = authStore.userRole.toLowerCase();
-    if (role === 'guard') {
-      next({ name: 'GuardScan' });
+    return next({ name: 'Login' });
+  } 
+  
+  // If user is already logged in and tries to go to Login page
+  else if (to.name === 'Login' && authStore.isAuthenticated) {
+    // FIRST, check if user and role exist
+    if (authStore.user && authStore.user.role) {
+      const role = authStore.user.role.toLowerCase();
+      if (role === 'guard') {
+        return next({ name: 'GuardScan' });
+      } else {
+        return next({ path: `/${role}` });
+      }
     } else {
-      next({ path: `/${role}` });
+      // If for some reason role is not set, go to a safe default page
+      return next('/'); 
     }
-  } else if (to.meta.role && to.meta.role !== authStore.userRole) {
-    const role = authStore.userRole.toLowerCase();
+  } 
+  
+  // If user tries to access a page that doesn't match their role
+  else if (to.meta.role && authStore.user && authStore.user.role !== to.meta.role) {
+    const role = authStore.user.role.toLowerCase();
      if (role === 'guard') {
-      next({ name: 'GuardScan' });
+      return next({ name: 'GuardScan' });
     } else {
-      next({ path: `/${role}` });
+      return next({ path: `/${role}` });
     }
   }
+  
+  // Otherwise, allow the navigation
   else {
-    next();
+    return next();
   }
 });
 
