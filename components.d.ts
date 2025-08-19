@@ -14,6 +14,8 @@ declare module 'vue' {
     BarChart: typeof import('./src/components/Core/BarChart.vue')['default']
     ChangePasswordDialog: typeof import('./src/components/Core/ChangePasswordDialog.vue')['default']
     ConfirmDialog: typeof import('./src/components/App/ConfirmDialog.vue')['default']
+    ForceChangePasswordDialog: typeof import('./src/components/Core/ForceChangePasswordDialog.vue')['default']
+    ForgotPasswordDialog: typeof import('./src/components/Core/ForgotPasswordDialog.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     PieChart: typeof import('./src/components/Core/PieChart.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

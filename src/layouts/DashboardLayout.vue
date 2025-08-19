@@ -10,6 +10,11 @@
     </v-main>
     
     <!-- ... your other dialogs ... -->
+      <change-password-dialog 
+      :model-value="authStore.isFirstLogin"
+      :persistent="true"
+    />
+
   </v-app>
 </template>
 

@@ -1,72 +1,69 @@
-# Copilot Instructions for Contractor Attendance System (Vuetify + Vue 3)
 
-## Project Architecture
-- **Frontend SPA** built with Vue 3, Vuetify 3, Pinia (state), Vue Router (routing), and Vite (build/dev).
-- **Directory Structure:**
-  - `src/components/App/`: App shell components (sidebar, top bar, dialogs)
-  - `src/views/`: Main dashboard and feature views (AdminDashboard, WorkerManagement, etc.)
-  - `src/stores/`: Pinia stores for auth, theme, language
-  - `src/router/`: Vue Router config and route guards
-  - `src/layouts/`: Layout wrappers (e.g., DashboardLayout)
-  - `src/services/`: API mocks and service logic
-  - `src/assets/`, `src/styles/`: Static assets and global styles
+# Copilot Instructions for Contractor Attendance System (Vue 3 + Vuetify)
 
-## Routing & Navigation
-- **All dashboard pages** are children of `/dashboard` route, rendered via `DashboardLayout.vue`.
-- **Sidebar navigation** (`AppNavDrawer.vue`) uses `@click` and `router.push` to switch between dashboard subpages (e.g., `/dashboard/admin`, `/dashboard/workers`).
-- **Role-based redirects** and access control are handled in `src/router/index.js` using Pinia's `auth` store.
+## Big Picture Architecture
+- **Frontend SPA**: Vue 3, Vuetify 3, Pinia (state), Vue Router (routing), Vite (build/dev).
+- **No backend/API**: All business logic and data are client-side; user, role, and attendance data are mocked in `src/services/mockApi.js`.
+- **Role-based dashboards**: Admin, HR, Finance, Manager, Guard. Each role has its own dashboard and navigation structure.
 
-## State Management
-- **Pinia** is used for global state (auth, theme, language). Stores are in `src/stores/`.
-- **Auth store** controls login state, user role, and first-login password change prompt.
+## Directory Structure & Key Files
+- `src/components/App/`: App shell (sidebar, top bar, dialogs)
+- `src/views/`: Main dashboards and feature views (AdminDashboard, WorkerManagement, etc.)
+- `src/stores/auth.js`: Pinia store for authentication, user state, and role-based routing
+- `src/router/index.js`: Vue Router config, navigation guards, role-based redirects
+- `src/services/mockApi.js`: Mocked user/role data and login logic
+- `src/components/Core/PieChart.vue`, `BarChart.vue`: Chart.js integration via vue-chartjs
+
+## Routing, Navigation, and Role Logic
+- **Dashboard routes**: All dashboards are children of `/` and use `DashboardLayout.vue`.
+- **Sidebar navigation**: See `AppNavDrawer.vue` for role-based nav items and icons.
+- **Navigation guards**: `src/router/index.js` uses Pinia's `auth` store to enforce authentication and role-based redirects. Example:
+  ```js
+  router.beforeEach((to, from, next) => {
+    // Redirect to login if not authenticated
+    // Redirect to correct dashboard if role mismatch
+  })
+  ```
+- **Role-based routing**: After login, users are routed to their dashboard by role (see `routeUserToDestination()` in `auth.js`).
+
+## State Management & Auth
+- **Pinia**: Used for global state (auth, theme, language).
+- **Auth flow**: Login form calls `authStore.login(email, password)`, which checks credentials via mock API and sets user/role state.
+- **First login**: If user logs in with default password, triggers password change dialog.
 
 ## UI Patterns & Conventions
-- **Vuetify 3** components for all UI (cards, lists, nav, dialogs, tables, chips, icons).
-- **Theme switching** (dark/light) is handled via Pinia and Vuetify theme API.
-- **Responsive design**: All layouts/components use Vuetify grid and breakpoints for mobile support.
-- **Sidebar (AppNavDrawer.vue)**: Navigation items use icons and highlight active route. No logo/text at top per user request.
-- **Top bar (AppTopBar.vue)**: Shows logo, theme toggle, user menu.
-
-## Analytics & Tables
-- **Charts**: Pie and Bar charts use Chart.js via `vue-chartjs` (see `src/components/Core/PieChart.vue`, `BarChart.vue`).
-- **Worker Management Table**: Only shown in `WorkerManagement.vue` (not in dashboard view). Uses Vuetify `v-data-table` with custom chips and actions.
+- **Vuetify 3**: All UI uses Vuetify components (cards, lists, nav, dialogs, tables, chips, icons).
+- **Responsive design**: Vuetify grid and breakpoints for mobile/desktop layouts.
+- **Sidebar (AppNavDrawer.vue)**: Navigation items use icons, highlight active route, and adapt to role.
+- **Top bar (AppTopBar.vue)**: Logo, theme toggle, user menu.
+- **Worker tables**: Use `v-data-table` with custom chips for status, company, contractor, etc.
+- **Charts**: Pie and Bar charts use Chart.js via vue-chartjs wrappers.
 
 ## Developer Workflow
 - **Install dependencies**: `npm install` (see README.md)
 - **Start dev server**: `npm run dev` (Vite, hot reload)
 - **Build for production**: `npm run build`
-- **No backend integration**: All data is mocked in `src/services/mockApi.js`.
-- **No test suite**: No tests or test runner present.
+- **No test suite**: No tests or runner present.
 
 ## Integration Points
 - **External dependencies**: Vuetify, Pinia, Vue Router, Chart.js, vue-chartjs
-- **No backend/API**: All logic is client-side and mock data
-- **No authentication provider**: Auth is simulated via Pinia store
+- **No backend/API**: All data and auth logic are client-side and mocked
 
 ## Example Patterns
 - **Sidebar navigation**:
   ```vue
-  <v-list-item @click="goTo('workers')" :active="isActive('workers')">...</v-list-item>
-  ```
-- **Route guard**:
-  ```js
-  router.beforeEach((to, from, next) => { /* ...auth logic... */ })
+  <v-list-item :to="item.to" :prepend-icon="item.icon" :title="item.title" />
   ```
 - **Pinia store usage**:
   ```js
   import { useAuthStore } from '@/stores/auth';
   const authStore = useAuthStore();
   ```
-
-## Key Files
-- `src/components/App/AppNavDrawer.vue` (sidebar)
-- `src/components/App/AppTopBar.vue` (top bar)
-- `src/views/Admin/AdminDashboard.vue` (dashboard)
-- `src/views/WorkerManagement.vue` (worker table)
-- `src/router/index.js` (routing/guards)
-- `src/stores/auth.js` (auth state)
-- `src/components/Core/PieChart.vue`, `BarChart.vue` (charts)
+- **Worker table chips**:
+  ```vue
+  <v-chip :color="item.status === 'Checked In' ? 'success' : 'grey'">{{ item.status }}</v-chip>
+  ```
 
 ---
 
-If any conventions or workflows are unclear, please ask for clarification or provide feedback to improve these instructions.
+If any conventions or workflows are unclear or missing, please ask for clarification or provide feedback to improve these instructions.

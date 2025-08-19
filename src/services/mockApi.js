@@ -1,10 +1,10 @@
-const users = {
-  'admin@printcare.com': { name: 'System Administrator', role: 'Admin', defaultPass: 'admin123' },
-  'hr@printcare.com': { name: 'HR Manager', role: 'HR', defaultPass: 'hr123' },
-  'finance@printcare.com': { name: 'Finance Manager', role: 'Finance', defaultPass: 'finance123' },
-  'manager@printcare.com': { name: 'Dept. Manager', role: 'Manager', defaultPass: 'manager123' },
-  'guard@printcare.com': { name: 'Security Guard', role: 'Guard', defaultPass: 'guard123' },
-};
+  const users = {
+    'admin@printcare.com': { name: 'System Administrator', role: 'Admin', defaultPass: 'admin123' },
+    'hr@printcare.com': { name: 'HR Manager', role: 'HR', defaultPass: 'hr123' },
+    'finance@printcare.com': { name: 'Finance Manager', role: 'Finance', defaultPass: 'finance123' },
+    'manager@printcare.com': { name: 'Dept. Manager', role: 'Manager', defaultPass: 'manager123' },
+    'guard@printcare.com': { name: 'Security Guard', role: 'Guard', defaultPass: 'guard123' },
+  };
 
 export const getMockUser = (email, password) => {
   return new Promise((resolve) => {
@@ -22,10 +22,23 @@ export const getMockUser = (email, password) => {
             role: userData.role,
             
           },
-        });
+          });
+        }
       } else {
         resolve(null); // User not found
       }
+      }, 500);
+    });
+};
+
+// Simulate sending a password reset email
+export const sendMockPasswordResetEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (users[email]) {
+        resolve(true); // Simulate success
+      } else {
+        reject(new Error('user-not-found'));
+      }
     }, 500);
   });
-};

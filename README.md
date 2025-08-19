@@ -1,3 +1,12 @@
+## 🔒 Password Management Dialogs
+
+This project includes three password-related dialogs for user security and convenience:
+
+- **ForgotPasswordDialog.vue**: Used on the login page. Lets users request a password reset link via email if they forget their password.
+- **ChangePasswordDialog.vue**: Used in user profile/settings. Allows users to change their password by entering their current and new password.
+- **ForceChangePasswordDialog.vue**: Shown to first-time login users (HR, Admin, Manager, Finance) in the dashboard. Forces them to change their password before accessing the dashboard for the first time.
+
+Each dialog serves a different purpose and is used in a specific part of the application for a secure and user-friendly experience.
 # Vuetify (Default)
 
 This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.

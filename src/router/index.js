@@ -39,9 +39,9 @@ const routes = [
         ]
       },
       // ... Other roles like HR, Finance
-      { path: 'hr', name: 'HRDashboard', component: HRDashboard, meta: { role: 'HR' } },
-      { path: 'finance', name: 'FinanceDashboard', component: FinanceDashboard, meta: { role: 'Finance' } },
-      { path: 'manager', name: 'ManagerDashboard', component: ManagerDashboard, meta: { role: 'Manager' } },
+      { path: 'hr', name: 'HRDashboard', component: HRDashboard, meta: { role: 'hr' } },
+      { path: 'finance', name: 'FinanceDashboard', component: FinanceDashboard, meta: { role: 'finance' } },
+      { path: 'manager', name: 'ManagerDashboard', component: ManagerDashboard, meta: { role: 'manager' } },
     ],
   },
   {
@@ -59,8 +59,7 @@ const router = createRouter({
 });
 
 // src/router/index.js
-
-// ... (ඉහළින් ඇති imports සහ routes array එක එලෙසම තබන්න) ...
+ 
 
 // --- NAVIGATION GUARD ---
 // This logic is now corrected to prevent the 'toLowerCase of undefined' error.

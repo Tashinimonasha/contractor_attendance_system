@@ -9,6 +9,17 @@
           <h2 class="text-h5 font-weight-bold mb-4">Sign In</h2>
           <p class="text-body-1 mb-8 text-medium-emphasis">Please enter your credentials to proceed.</p>
           <template v-if="!showChangePassword">
+            <v-alert
+              v-if="authStore.error"
+              type="error"
+              class="mb-2"
+              border="start"
+              dense
+              outlined
+              style="font-size:0.95rem; white-space:pre-line; word-break:break-word;"
+            >
+              {{ authStore.error }}
+            </v-alert>
             <v-form @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
@@ -31,22 +42,29 @@
                 required
                 class="mb-4"
               ></v-text-field>
-              <v-btn
-                :loading="loading"
-                type="submit"
-                color="blue"
-                block
-                size="large"
-                rounded="lg"
-                class="mt-6"
-              >
-                Sign In
-              </v-btn>
+              <div class="sign-in-btn-wrapper">
+                <v-btn
+                  :loading="loading"
+                  type="submit"
+                  color="blue"
+                  block
+                  size="large"
+                  rounded="lg"
+                  class="mt-10 mb-4"
+                >
+                  Sign In
+                </v-btn>
+              </div>
             </v-form>
-            <v-btn variant="text" color="blue" class="mt-4" @click="showChangePassword = true">Forgot Password?</v-btn>
+            <v-btn variant="text" color="blue" class="mb-2" @click="showChangePassword = true">Forgot Password?</v-btn>
           </template>
           <template v-else>
-            <change-password-dialog :model-value="true" :persistent="false" @update:model-value="showChangePassword = false" />
+            <change-password-dialog
+              v-if="showChangePassword"
+              :model-value="showChangePassword"
+              :persistent="false"
+              @update:model-value="showChangePassword = false"
+            />
           </template>
         </v-card>
       </v-col>
@@ -56,7 +74,7 @@
           <v-img :src="logo" max-width="750" class="mx-auto mb-6" />
           <h1 class="text-h3 font-weight-bold mb-2 text-blue">Welcome to Printcare</h1>
           <p class="text-h6 font-weight-light mb-10 subtitle-text">Secure attendance management for external contractors</p>
-          <v-img :src="illustration" max-width="400" class="mx-auto" />
+       
         </div>
       </v-col>
       <v-col cols="12" md="6" class="d-none d-md-flex justify-center align-center">
@@ -64,6 +82,17 @@
           <h2 class="text-h5 font-weight-bold mb-2">Sign In</h2>
           <p class="text-body-1 mb-8 text-medium-emphasis">Please enter your credentials to proceed.</p>
           <template v-if="!showChangePassword">
+            <v-alert
+              v-if="authStore.error"
+              type="error"
+              class="mb-2"
+              border="start"
+              dense
+              outlined
+              style="font-size:0.95rem; white-space:pre-line; word-break:break-word;"
+            >
+              {{ authStore.error }}
+            </v-alert>
             <v-form @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
@@ -85,22 +114,29 @@
                 rounded="lg"
                 required
               ></v-text-field>
-              <v-btn
-                :loading="loading"
-                type="submit"
-                color="blue"
-                block
-                size="large"
-                rounded="lg"
-                class="mt-8"
-              >
-                Sign In
-              </v-btn>
+              <div class="sign-in-btn-wrapper">
+                <v-btn
+                  :loading="loading"
+                  type="submit"
+                  color="blue"
+                  block
+                  size="large"
+                  rounded="lg"
+                  class="mt-10 mb-4"
+                >
+                  Sign In
+                </v-btn>
+              </div>
             </v-form>
-            <v-btn variant="text" color="blue" class="mt-2" @click="showChangePassword = true">Forgot Password?</v-btn>
+            <v-btn variant="text" color="blue" class="mb-2" @click="showChangePassword = true">Forgot Password?</v-btn>
           </template>
           <template v-else>
-            <change-password-dialog :model-value="true" :persistent="false" @update:model-value="showChangePassword = false" />
+            <change-password-dialog
+              v-if="showChangePassword"
+              :model-value="showChangePassword"
+              :persistent="false"
+              @update:model-value="showChangePassword = false"
+            />
           </template>
         </v-card>
       </v-col>
@@ -128,14 +164,26 @@ function onChangePasswordDialogClose() {
 }
 
 // Refs for the form fields and state
-const email = ref('admin@printcare.com');
-const password = ref('admin123');
+const email = ref('');
+const password = ref('');
 const showPassword = ref(false);
 const loading = ref(false);
 
 // CORRECTED: The handleLogin function should ONLY handle logging in.
 // The routing logic is handled automatically by your auth store and router.
 const handleLogin = async () => {
+  if (!email.value && !password.value) {
+    authStore.error = 'Please fill in both email and password.';
+    return;
+  }
+  if (!email.value) {
+    authStore.error = 'Please enter your email address.';
+    return;
+  }
+  if (!password.value) {
+    authStore.error = 'Please enter your password.';
+    return;
+  }
   loading.value = true;
   await authStore.login(email.value, password.value);
   loading.value = false;
@@ -143,11 +191,12 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+/* Decorative panel background */
 .decorative-panel {
   background-color: #f4f7f9;
 }
 .v-theme--dark .decorative-panel {
-    background-color: #1a1a1a;
+  background-color: #1a1a1a;
 }
 /* Make subtitle text visible in dark mode */
 .subtitle-text {
@@ -155,5 +204,29 @@ const handleLogin = async () => {
 }
 .v-theme--dark .subtitle-text {
   color: #bfc8d6 !important;
+}
+
+/* Sign In button wrapper for spacing */
+.sign-in-btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Mobile responsive tweaks */
+@media (max-width: 600px) {
+  .mobile-signin-card {
+    padding-bottom: 32px !important;
+    min-height: 420px;
+    margin-bottom: 24px;
+  }
+  .sign-in-btn-wrapper {
+    margin-top: 24px;
+    margin-bottom: 16px;
+  }
+  .v-btn {
+    font-size: 1.1rem;
+    min-height: 48px;
+  }
 }
 </style>
