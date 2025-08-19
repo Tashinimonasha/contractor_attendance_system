@@ -40,14 +40,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { useDisplay } from 'vuetify';
+import { computed } from 'vue';
 import logo from '@/assets/printcareLogo.png';
 
 const props = defineProps({ modelValue: Boolean });
 defineEmits(['update:modelValue']);
 
 const { mdAndUp: isDesktop } = useDisplay();
+const authStore = useAuthStore();
 
 // The navigation drawer should be in "rail" mode (small icons) ONLY on desktop
 // when it is not being hovered. We control this manually.
@@ -55,10 +57,25 @@ const railMode = computed(() => {
   return isDesktop.value && props.modelValue;
 });
 
-const navItems = [
-  { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/admin/overview' },
-  { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: '/admin/workers' },
-  { title: 'System Users', icon: 'mdi-account-group-outline', to: '#' },
-  { title: 'Management', icon: 'mdi-cog-outline', to: '/admin/management' },
-];
+const navItems = computed(() => {
+  const role = authStore.user?.role?.toLowerCase();
+  if (role === 'admin') {
+    return [
+      { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/admin/overview' },
+      { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: '/admin/workers' },
+      { title: 'System Users', icon: 'mdi-account-group-outline', to: '/admin/system-users' },
+      { title: 'Management', icon: 'mdi-cog-outline', to: '/admin/management' },
+    ];
+  } else if (role === 'hr' || role === 'finance' || role === 'manager') {
+    return [
+      { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: `/${role}/overview` },
+      { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: `/${role}/workers` },
+    ];
+  } else {
+    return [
+      { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/overview' },
+      { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: '/workers' },
+    ];
+  }
+});
 </script>

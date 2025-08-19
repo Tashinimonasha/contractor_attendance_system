@@ -59,7 +59,7 @@
             <v-btn variant="text" color="blue" class="mb-2" @click="showChangePassword = true">Forgot Password?</v-btn>
           </template>
           <template v-else>
-            <change-password-dialog
+            <ForgotPasswordDialog
               v-if="showChangePassword"
               :model-value="showChangePassword"
               :persistent="false"
@@ -131,7 +131,7 @@
             <v-btn variant="text" color="blue" class="mb-2" @click="showChangePassword = true">Forgot Password?</v-btn>
           </template>
           <template v-else>
-            <change-password-dialog
+            <ForgotPasswordDialog
               v-if="showChangePassword"
               :model-value="showChangePassword"
               :persistent="false"
@@ -149,7 +149,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import ChangePasswordDialog from '@/components/Core/ChangePasswordDialog.vue';
+import ForgotPasswordDialog from '@/components/Core/ForgotPasswordDialog.vue';
 
 // Import your images from the assets folder
 import logo from '@/assets/printcareLogo.png';

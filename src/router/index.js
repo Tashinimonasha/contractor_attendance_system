@@ -30,7 +30,7 @@ const routes = [
         path: 'admin',
         name: 'AdminDashboard',
         component: AdminDashboard, // This is the container for admin pages
-        meta: { role: 'Admin' },
+        meta: { role: 'admin' },
         children: [
           { path: '', redirect: '/admin/overview' }, // Default redirect
           { path: 'overview', name: 'AdminOverview', component: AdminOverview },
