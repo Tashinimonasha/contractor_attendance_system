@@ -1,37 +1,48 @@
-
 <template>
-  <div>
-    <!-- Navigation Tabs for Finance Dashboard -->
+  <div class="pa-4 pa-md-6">
+    <!-- Header -->
     <div class="mb-6">
-      <v-tabs
-        v-model="activeTab"
-        color="primary"
-        background-color="white"
-        class="mb-6"
-      >
-        <v-tab :to="{ name: 'FinanceOverview' }" value="overview">Overview</v-tab>
-        <v-tab :to="{ name: 'FinanceWorkers' }" value="workers">Workers</v-tab>
-      </v-tabs>
+      <h1 class="text-h4">Finance Dashboard</h1>
+      <p class="text-medium-emphasis">Welcome, {{ authStore.user?.name }}</p>
     </div>
-    <!-- Child dashboard content -->
-    <router-view />
+
+    <!-- Navigation Tabs -->
+    <v-tabs v-model="activeTab" color="primary" class="mb-6">
+      <v-tab value="overview" prepend-icon="mdi-view-dashboard-outline">Overview</v-tab>
+      <v-tab value="workers" prepend-icon="mdi-account-hard-hat-outline">Workers</v-tab>
+ 
+    </v-tabs>
+    
+    <!-- Content Window -->
+    <!-- This will display the component for the currently active tab -->
+    <v-window v-model="activeTab">
+      <v-window-item value="overview">
+        <FinanceOverview />
+      </v-window-item>
+      
+      <v-window-item value="workers">
+        <FinanceWorkers />
+      </v-window-item>
+      
+       
+    </v-window>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 
-const route = useRoute();
-const router = useRouter();
-const activeTab = ref(route.path.includes('workers') ? 'workers' : 'overview');
+// Import the child components that will be displayed in the tabs
+import FinanceOverview from './children/FinanceOverview.vue';
+import FinanceWorkers from './children/FinanceWorkers.vue';
+ 
+const authStore = useAuthStore();
 
-// Watch tab change and navigate
-watch(activeTab, (tab) => {
-  if (tab === 'overview') {
-    router.push({ name: 'FinanceOverview' });
-  } else if (tab === 'workers') {
-    router.push({ name: 'FinanceWorkers' });
-  }
-});
+// This ref controls which tab is active.
+// The default value 'overview' ensures the Overview tab is shown on page load.
+const activeTab = ref('overview');
 </script>
+
+
+ 

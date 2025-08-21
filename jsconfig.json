@@ -23,6 +23,6 @@
     "src/views/Finance/FinanceDashboard.vue",
     "src/views/HR/HRDashboard.vue",
     "src/views/Manager/ManagerDashboard.vue",
-    "src/views/Guard/GuardScanView.vue"
+    "src/views/Guard/GuardScanView.vue",
   ]
 }

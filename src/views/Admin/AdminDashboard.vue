@@ -1,137 +1,54 @@
 <template>
-  <div>
-    <div class="d-flex">
-      <AppNavDrawer />
-      <div class="flex-grow-1 px-2 px-md-6">
-        <!-- Header -->
-        <div class="mb-6">
-          <h1 class="text-h4">Admin Dashboard</h1>
-          <p class="text-medium-emphasis">{{ authStore.welcomeMessage }}</p>
-        </div>
-
-        <!-- Stat Cards -->
-        <v-row>
-          <v-col v-for="stat in stats" :key="stat.title" cols="12" sm="6" md="3">
-            <v-card class="pa-2" rounded="lg">
-              <v-card-title class="text-subtitle-1 font-weight-regular text-medium-emphasis">{{ stat.title }}</v-card-title>
-              <v-card-text class="d-flex align-center">
-                <span class="text-h4 font-weight-bold">{{ stat.value }}</span>
-                <v-chip v-if="stat.chip" size="small" :color="stat.chipColor" class="ml-auto">{{ stat.chip }}</v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-        
-        <!-- Analytics Filter & Charts Section (2x2 grid) -->
-        <div class="d-flex align-center mb-4">
-          <span class="text-h6 font-weight-bold mr-auto">Analytics</span>
-          <v-select
-            v-model="selectedPeriod"
-            :items="['Daily', 'Weekly', 'Monthly']"
-            label="Period"
-            dense
-            hide-details
-            style="max-width: 140px;"
-          />
-        </div>
-        <v-row class="mb-8">
-          <v-col cols="12" md="6">
-            <v-card rounded="lg" class="pa-4 mb-4">
-              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Company</div>
-              <PieChart :chart-data="filteredCompanyData" />
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-card rounded="lg" class="pa-4 mb-4">
-              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Department</div>
-              <BarChart :chart-data="filteredDepartmentData" />
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-card rounded="lg" class="pa-4 mb-4">
-              <div class="text-subtitle-1 font-weight-bold mb-2">Workers by Contractor</div>
-              <PieChart :chart-data="filteredContractorData" />
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-card rounded="lg" class="pa-4 mb-4">
-              <div class="text-subtitle-1 font-weight-bold mb-2">Current Status</div>
-              <PieChart :chart-data="filteredStatusData" />
-            </v-card>
-          </v-col>
-        </v-row>
-      </div>
+  <div class="pa-4 pa-md-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-h4">Admin Dashboard</h1>
+      <p class="text-medium-emphasis">Welcome, {{ authStore.user?.name }}</p>
     </div>
+
+    <!-- Navigation Tabs -->
+    <v-tabs v-model="activeTab" color="primary" class="mb-6">
+      <v-tab value="overview" prepend-icon="mdi-view-dashboard-outline">Overview</v-tab>
+      <v-tab value="workers" prepend-icon="mdi-account-hard-hat-outline">Workers</v-tab>
+      <v-tab value="systemUsers" prepend-icon="mdi-account-group-outline">System Users</v-tab>
+      <v-tab value="management" prepend-icon="mdi-cog-outline">Management</v-tab>
+    </v-tabs>
+    
+    <!-- Content Window -->
+    <!-- This will display the component for the currently active tab -->
+    <v-window v-model="activeTab">
+      <v-window-item value="overview">
+        <AdminOverview />
+      </v-window-item>
+      
+      <v-window-item value="workers">
+        <AdminWorkers />
+      </v-window-item>
+      
+      <v-window-item value="systemUsers">
+        <AdminSystemUsers />
+      </v-window-item>
+
+      <v-window-item value="management">
+        <AdminManagement />
+      </v-window-item>
+    </v-window>
   </div>
 </template>
+
 <script setup>
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import AppTopBar from '@/components/App/AppTopBar.vue';
-import AppNavDrawer from '@/components/App/AppNavDrawer.vue';
-import PieChart from '@/components/Core/PieChart.vue';
-import BarChart from '@/components/Core/BarChart.vue';
+
+// Import the child components that will be displayed in the tabs
+import AdminOverview from './children/AdminOverview.vue';
+import AdminWorkers from './children/AdminWorkers.vue';
+import AdminSystemUsers from './children/AdminSystemUsers.vue';
+import AdminManagement from './children/AdminManagement.vue';
+
 const authStore = useAuthStore();
-const stats = [
-  { title: 'System Users', value: '3', chip: '3 active', chipColor: 'success' },
-  { title: 'Contractors', value: '3', chip: '3 active', chipColor: 'success' },
-  { title: 'Companies', value: '2' },
-  { title: 'Departments', value: '4' },
-];
-const workerHeaders = [
-  { title: 'Worker Name', value: 'name' },
-  { title: 'NIC Number', value: 'nic' },
-  { title: 'Company', value: 'company' },
-  { title: 'Department', value: 'department' },
-  { title: 'Contractor', value: 'contractor' },
-  { title: 'Status', value: 'status' },
-  { title: 'Check In', value: 'checkIn' },
-  { title: 'Check Out', value: 'checkOut' },
-  { title: 'Duration', value: 'duration' },
-  { title: 'Active', value: 'active' },
-  { title: 'Action', value: 'action', sortable: false },
-];
-const workerRecords = [
-  { name: 'Amal Perera', nic: '199012345678', company: 'PCL', department: 'Printing & Packaging', contractor: 'ABC Contractors Ltd', status: 'Checked In', checkIn: '08:00', checkOut: '-', duration: '', active: true },
-  { name: 'Sunil Fernando', nic: '198567890123', company: 'PUL', department: 'Sales & Customer Service', contractor: 'XYZ Services', status: 'Checked Out', checkIn: '09:15', checkOut: '17:45', duration: '8h 30m', active: false },
-  { name: 'Kamala Silva', nic: '199234567890', company: 'PPM', department: 'Design & Pre-media', contractor: 'Quick Solutions', status: 'Checked In', checkIn: '07:45', checkOut: '-', duration: '', active: true },
-  { name: 'Nimal Jayasinghe', nic: '198790123456', company: 'PDSL', department: 'Sales & Customer Service', contractor: 'Elite Workforce', status: 'Checked Out', checkIn: '08:30', checkOut: '16:30', duration: '8h 0m', active: false },
-  { name: 'Dilani Wijesinghe', nic: '199456789012', company: 'PCL', department: 'Design & Pre-media', contractor: 'Professional Staff', status: 'Checked In', checkIn: '08:15', checkOut: '-', duration: '', active: true },
-];
-import { ref, computed } from 'vue';
-const selectedPeriod = ref('Daily');
 
-const companyData = {
-  labels: ['PCL', 'PUL', 'PPM', 'PDSL'],
-  datasets: [{
-    data: [2, 1, 1, 1],
-    backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#F44336'],
-  }],
-};
-const departmentData = {
-  labels: ['Printing', 'Design', 'Sales', 'Design', 'Sales'],
-  datasets: [{
-    data: [1, 1, 1, 1, 1],
-    backgroundColor: '#4CAF50',
-  }],
-};
-const contractorData = {
-  labels: ['XYZ', 'ABC', 'Quick', 'Elite', 'Professional'],
-  datasets: [{
-    data: [1, 1, 1, 1, 1],
-    backgroundColor: ['#2196F3', '#4CAF50', '#FFC107', '#9C27B0', '#FF5722'],
-  }],
-};
-const statusData = {
-  labels: ['Checked In', 'Checked Out'],
-  datasets: [{
-    data: [3, 2],
-    backgroundColor: ['#4CAF50', '#F44336'],
-  }],
-};
-
-// Stub: Filter logic for charts (replace with real filter logic as needed)
-const filteredCompanyData = computed(() => companyData);
-const filteredDepartmentData = computed(() => departmentData);
-const filteredContractorData = computed(() => contractorData);
-const filteredStatusData = computed(() => statusData);
+// This ref controls which tab is active.
+// The default value 'overview' ensures the Overview tab is shown on page load.
+const activeTab = ref('overview');
 </script>
