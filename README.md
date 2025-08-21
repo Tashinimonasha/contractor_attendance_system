@@ -1,88 +1,291 @@
-## 🔒 Password Management Dialogs
+# 🏗️ Contractor Attendance System - Frontend
 
-This project includes three password-related dialogs for user security and convenience:
+A modern Vue.js application for managing contractor attendance with role-based access control and real-time data synchronization.
 
-- **ForgotPasswordDialog.vue**: Used on the login page. Lets users request a password reset link via email if they forget their password.
-- **ChangePasswordDialog.vue**: Used in user profile/settings. Allows users to change their password by entering their current and new password.
-- **ForceChangePasswordDialog.vue**: Shown to first-time login users (HR, Admin, Manager, Finance) in the dashboard. Forces them to change their password before accessing the dashboard for the first time.
+## 🚀 Overview
 
-Each dialog serves a different purpose and is used in a specific part of the application for a secure and user-friendly experience.
-# Vuetify (Default)
+This is the frontend application for the Contractor Attendance System built with Vue 3, Vuetify 3, and Firebase. It provides a comprehensive solution for managing contractor attendance, user management, and administrative tasks with different access levels for various user roles.
 
-This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
+## 👥 User Roles & Access
 
-## ❗️ Important Links
+- **Admin**: Full system access, user management, system administration
+- **HR**: Human resources management, worker oversight, attendance reports
+- **Finance**: Financial reports, payroll management, cost analysis
+- **Manager**: Team management, attendance monitoring, operational oversight
+- **Guard**: Attendance scanning, check-in/check-out operations
 
-- 📄 [Docs](https://vuetifyjs.com/)
-- 🚨 [Issues](https://issues.vuetifyjs.com/)
-- 🏬 [Store](https://store.vuetifyjs.com/)
-- 🎮 [Playground](https://play.vuetifyjs.com/)
-- 💬 [Discord](https://community.vuetifyjs.com)
+## 🔒 Authentication & Security
 
-## 💿 Install
+The system includes comprehensive authentication features:
 
-Set up your project using your preferred package manager. Use the corresponding command to install the dependencies:
+- **Firebase Authentication**: Secure user authentication with email/password
+- **Role-based Access Control**: Different dashboards and permissions per role
+- **Password Management**: 
+  - Forgot password functionality
+  - Force password change for first-time users
+  - Secure password update options
+- **Session Management**: Persistent login state with automatic route restoration
 
-| Package Manager                                                | Command        |
-|---------------------------------------------------------------|----------------|
-| [yarn](https://yarnpkg.com/getting-started)                   | `yarn install` |
-| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install)     | `npm install`  |
-| [pnpm](https://pnpm.io/installation)                          | `pnpm install` |
-| [bun](https://bun.sh/#getting-started)                        | `bun install`  |
+## 🛠️ Tech Stack
 
-After completing the installation, your environment is ready for Vuetify development.
+### Frontend Technologies
+- **Vue 3**: Progressive JavaScript framework with Composition API
+- **Vuetify 3**: Material Design component library
+- **Pinia**: Modern state management for Vue
+- **Vue Router**: Client-side routing with navigation guards
+- **Vite**: Fast build tool with HMR (Hot Module Replacement)
 
-## ✨ Features
+### Firebase Integration
+- **Firebase Authentication**: User authentication and management
+- **Cloud Firestore**: Real-time NoSQL database
+- **Firebase SDK**: Client-side Firebase integration
 
-- 🖼️ **Optimized Front-End Stack**: Leverage the latest Vue 3 and Vuetify 3 for a modern, reactive UI development experience. [Vue 3](https://v3.vuejs.org/) | [Vuetify 3](https://vuetifyjs.com/en/)
-- 🗃️ **State Management**: Integrated with [Pinia](https://pinia.vuejs.org/), the intuitive, modular state management solution for Vue.
-- 🚦 **Routing and Layouts**: Utilizes Vue Router for SPA navigation and vite-plugin-vue-layouts for organizing Vue file layouts. [Vue Router](https://router.vuejs.org/) | [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts)
-- ⚡ **Next-Gen Tooling**: Powered by Vite, experience fast cold starts and instant HMR (Hot Module Replacement). [Vite](https://vitejs.dev/)
-- 🧩 **Automated Component Importing**: Streamline your workflow with unplugin-vue-components, automatically importing components as you use them. [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components)
+### Development Tools
+- **ESLint**: Code linting and formatting
+- **TypeScript Support**: Type checking and IntelliSense
+- **Auto-Import**: Automatic component importing
 
-These features are curated to provide a seamless development experience from setup to deployment, ensuring that your Vuetify application is both powerful and maintainable.
+## 📁 Project Structure
 
-## 💡 Usage
-
-This section covers how to start the development server and build your project for production.
-
-### Starting the Development Server
-
-To start the development server with hot-reload, run the following command. The server will be accessible at [http://localhost:3000](http://localhost:3000):
-
-```bash
-yarn dev
+```
+contractor_attendance_system/
+├── src/
+│   ├── components/          # Reusable Vue components
+│   │   ├── App/            # Application-level components
+│   │   └── Core/           # Core UI components (Charts, Dialogs)
+│   ├── layouts/            # Page layouts
+│   ├── pages/              # Page components
+│   ├── views/              # Role-specific dashboard views
+│   │   ├── Admin/          # Admin dashboard and children
+│   │   ├── HR/             # HR dashboard and children
+│   │   ├── Finance/        # Finance dashboard and children
+│   │   ├── Manager/        # Manager dashboard and children
+│   │   └── Guard/          # Guard scanning interface
+│   ├── stores/             # Pinia state management
+│   ├── router/             # Vue Router configuration
+│   ├── services/           # API services and utilities
+│   ├── plugins/            # Vue plugins configuration
+│   ├── locales/            # Internationalization files
+│   └── styles/             # Global styles and themes
+├── public/                 # Static assets
+└── functions/              # Firebase Functions (Backend)
 ```
 
-(Repeat for npm, pnpm, and bun with respective commands.)
+## 🔥 Features
 
-> Add NODE_OPTIONS='--no-warnings' to suppress the JSON import warnings that happen as part of the Vuetify import mapping. If you are on Node [v21.3.0](https://nodejs.org/en/blog/release/v21.3.0) or higher, you can change this to NODE_OPTIONS='--disable-warning=5401'. If you don't mind the warning, you can remove this from your package.json dev script.
+### 🔐 Authentication System
+- Secure login with Firebase Authentication
+- Role-based dashboard routing
+- Password reset functionality
+- Force password change for new users
+- Session persistence across page refreshes
+
+### 📊 Dashboard Management
+- **Admin Dashboard**: Complete system administration
+- **HR Dashboard**: Human resources management
+- **Finance Dashboard**: Financial reporting and analysis
+- **Manager Dashboard**: Team and project management
+- **Guard Interface**: Simple scanning and check-in system
+
+### 🎨 UI/UX Features
+- Material Design with Vuetify 3
+- Responsive design for all devices
+- Dark/Light theme support
+- Multi-language support (English, Sinhala, Tamil)
+- Real-time data updates
+
+### 📱 Progressive Web App
+- Offline functionality
+- Fast loading with Vite
+- Mobile-optimized interface
+
+## 💿 Installation & Setup
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm, yarn, pnpm, or bun
+- Firebase project setup
+
+### Step 1: Install Dependencies
+
+Choose your preferred package manager:
+
+| Package Manager | Command        |
+|----------------|----------------|
+| [yarn](https://yarnpkg.com/getting-started) | `yarn install` |
+| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install) | `npm install` |
+| [pnpm](https://pnpm.io/installation) | `pnpm install` |
+| [bun](https://bun.sh/#getting-started) | `bun install` |
+
+### Step 2: Firebase Configuration
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Authentication and Firestore
+3. Copy your Firebase configuration
+4. Update `src/firebase.js` with your configuration:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+```
+
+### Step 3: Environment Setup
+
+Ensure your Firebase Functions are deployed (see `../functions/README.md`)
+
+## 🚀 Development
+
+### Starting Development Server
+
+To start the development server with hot-reload:
+
+```bash
+# Using npm
+npm run dev
+
+# Using yarn
+yarn dev
+
+# Using pnpm
+pnpm dev
+
+# Using bun
+bun run dev
+```
+
+The application will be available at `http://localhost:3000` (or next available port)
 
 ### Building for Production
 
-To build your project for production, use:
+To build the project for production:
 
 ```bash
+# Using npm
+npm run build
+
+# Using yarn
 yarn build
+
+# Using pnpm
+pnpm build
+
+# Using bun
+bun run build
 ```
 
-(Repeat for npm, pnpm, and bun with respective commands.)
+## 🔑 Default Login Credentials
 
-Once the build process is completed, your application will be ready for deployment in a production environment.
+**Admin User:**
+- Email: `admin@printcare.com`
+- Password: `Admin@123`
 
-## 💪 Support Vuetify Development
+*Note: You'll be prompted to change the password on first login*
 
-This project is built with [Vuetify](https://vuetifyjs.com/en/), a UI Library with a comprehensive collection of Vue components. Vuetify is an MIT licensed Open Source project that has been made possible due to the generous contributions by our [sponsors and backers](https://vuetifyjs.com/introduction/sponsors-and-backers/). If you are interested in supporting this project, please consider:
+## 🏗️ Architecture
 
-- [Requesting Enterprise Support](https://support.vuetifyjs.com/)
-- [Sponsoring John on Github](https://github.com/users/johnleider/sponsorship)
-- [Sponsoring Kael on Github](https://github.com/users/kaelwd/sponsorship)
-- [Supporting the team on Open Collective](https://opencollective.com/vuetify)
-- [Becoming a sponsor on Patreon](https://www.patreon.com/vuetify)
-- [Becoming a subscriber on Tidelift](https://tidelift.com/subscription/npm/vuetify)
-- [Making a one-time donation with Paypal](https://paypal.me/vuetify)
+### State Management
+- **Pinia Stores**: Modular state management
+  - `auth.js`: Authentication state and user management
+  - `theme.js`: Theme and UI preferences
+  - `language.js`: Internationalization state
 
-## 📑 License
-[MIT](http://opensource.org/licenses/MIT)
+### Routing Structure
+- **Public Routes**: Login page
+- **Protected Routes**: Role-based dashboard access
+- **Navigation Guards**: Authentication and authorization checks
+- **Route Persistence**: Maintains current page on refresh
 
-Copyright (c) 2016-present Vuetify, LLC
+### Component Organization
+- **Layouts**: Shared page structures
+- **Views**: Page-level components for each role
+- **Components**: Reusable UI components
+- **Core Components**: Charts, dialogs, and utilities
+
+## 🔧 Configuration
+
+### Firebase Setup
+The application connects to Firebase for:
+- User authentication
+- Firestore database operations
+- Cloud Functions API calls
+
+### Theme Customization
+Located in `src/plugins/vuetify.js`:
+- Light and dark theme variants
+- Custom color schemes
+- Material Design 3 integration
+
+### Internationalization
+Supported languages in `src/locales/`:
+- English (`en.json`)
+- Sinhala (`si.json`)
+- Tamil (`ta.json`)
+
+## 🛡️ Security Features
+
+- **Authentication Guards**: Prevent unauthorized access
+- **Role-based Access Control**: Different permissions per user type
+- **Session Management**: Secure token handling
+- **CORS Configuration**: Proper cross-origin request handling
+- **Input Validation**: Client-side form validation
+
+## 📱 Responsive Design
+
+- Mobile-first approach
+- Tablet and desktop optimizations
+- Touch-friendly interfaces
+- Accessible navigation
+
+## 🚀 Performance
+
+- **Vite**: Lightning-fast development builds
+- **Code Splitting**: Lazy-loaded routes
+- **Tree Shaking**: Optimized bundle size
+- **Hot Module Replacement**: Instant updates during development
+
+## � API Integration
+
+Connects to Firebase Functions backend:
+- Authentication endpoints
+- User management APIs
+- Attendance tracking
+- Worker management
+- Reporting functions
+
+## 📋 Scripts
+
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+
+# Code Quality
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript checking
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Check the Firebase documentation
+- Review Vuetify documentation
+- Create an issue in the repository
