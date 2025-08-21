@@ -3,9 +3,6 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 
-// Clear localStorage to ensure login page shows first
-localStorage.clear();
-
 // Vuetify
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';

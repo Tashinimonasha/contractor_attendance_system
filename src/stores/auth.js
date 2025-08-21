@@ -1,16 +1,62 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import router from '@/router';
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 // Import your configured firebase instances
 import { auth, db } from '@/firebase';
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(JSON.parse(localStorage.getItem('user')) || null);
-  const isFirstLogin = ref(false); // We will get this from Firestore
-  const error = ref(null); // Holds error messages for UI
+  const user = ref(null);
+  const isFirstLogin = ref(false);
+  const error = ref(null);
+  const isLoading = ref(true);
+  const isInitialized = ref(false);
+
+  // Initialize auth state listener
+  if (!isInitialized.value) {
+    isInitialized.value = true;
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      isLoading.value = true;
+      if (firebaseUser) {
+        try {
+          // Check if we already have user data in localStorage
+          const cachedUser = localStorage.getItem('user');
+          if (cachedUser) {
+            user.value = JSON.parse(cachedUser);
+            isLoading.value = false;
+          }
+
+          // Always fetch fresh data from Firestore
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const updatedUser = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: userData.name,
+              role: userData.role,
+            };
+            user.value = updatedUser;
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            isFirstLogin.value = userData.isDefaultPassword === true;
+          }
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+          await signOut(auth);
+          user.value = null;
+          localStorage.removeItem('user');
+        }
+      } else {
+        user.value = null;
+        localStorage.removeItem('user');
+      }
+      isLoading.value = false;
+    });
+  }
 
   // A computed property to check if the user is logged in
   const isAuthenticated = computed(() => !!user.value);
