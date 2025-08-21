@@ -14,9 +14,20 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(true);
   const isInitialized = ref(false);
 
-  // Initialize auth state listener
+  // Initialize auth state listener and restore from localStorage if available
   if (!isInitialized.value) {
     isInitialized.value = true;
+    
+    // Try to restore user from localStorage first for immediate availability
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        user.value = JSON.parse(storedUser);
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
+    }
+    
     onAuthStateChanged(auth, async (firebaseUser) => {
       isLoading.value = true;
       if (firebaseUser) {
@@ -131,13 +142,24 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Redirects the user to the correct page based on their role.
+   * Redirects the user to the correct page based on their role or saved redirect URL.
    */
   function routeUserToDestination() {
     if (!user.value || !user.value.role) {
       console.error("Cannot route user without a valid role.");
       return;
     }
+    
+    // Check if there's a saved redirect URL from before login
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('redirect');
+    
+    if (redirectPath && redirectPath !== '/login') {
+      // Navigate to the originally requested page
+      router.push(redirectPath);
+      return;
+    }
+    
     const role = user.value.role;
     if (role === 'Guard') {
       router.push({ name: 'GuardScan' });

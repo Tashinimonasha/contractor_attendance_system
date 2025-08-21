@@ -36,6 +36,11 @@ const routes = [
     path: '/',
     component: DashboardLayout,
     meta: { requiresAuth: true },
+    redirect: (to) => {
+      // This redirect will be handled by the auth guard
+      // The auth guard will redirect to the appropriate dashboard based on user role
+      return '/login'; // Temporary, will be overridden by auth guard
+    },
     children: [
       {
         path: 'admin',
@@ -105,11 +110,25 @@ const router = createRouter({
  
 
 // --- NAVIGATION GUARD ---
-// This logic is now corrected to prevent the 'toLowerCase of undefined' error.
+// Enhanced navigation guard with better refresh handling and route restoration
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   
-  // Wait for auth state to be ready
+  // For non-auth required routes, allow immediate access
+  if (!to.meta.requiresAuth) {
+    // If user is logged in and tries to access login page, redirect to their dashboard
+    if (to.name === 'Login' && authStore.isAuthenticated) {
+      const role = authStore.user?.role;
+      if (role === 'Guard') {
+        return next({ name: 'GuardScan' });
+      } else if (role) {
+        return next({ path: `/${role.toLowerCase()}` });
+      }
+    }
+    return next();
+  }
+
+  // For protected routes, wait for auth state if still loading
   if (authStore.isLoading) {
     await new Promise(resolve => {
       const unwatch = watch(
@@ -125,39 +144,36 @@ router.beforeEach(async (to, from, next) => {
     });
   }
 
-  // Use only the authStore user
   const user = authStore.user;
   const role = user?.role;
 
-  // Public routes - allow access
-  if (!to.meta.requiresAuth) {
-    // If user is logged in and tries to access login page
-    if (to.name === 'Login' && role) {
-      return next(role === 'Guard' ? { name: 'GuardScan' } : { path: `/${role.toLowerCase()}` });
-    }
-    return next();
-  }
-
-  // Protected routes - check auth
+  // If no user after auth is loaded, redirect to login but preserve the intended route
   if (!user) {
     console.log('Auth required but no user found, redirecting to login');
     return next({ 
       name: 'Login',
-      query: { redirect: to.fullPath } // Save attempted URL
+      query: { redirect: to.fullPath } // Save attempted URL for restoration after login
     });
+  }
+
+  // If accessing root path, redirect to appropriate dashboard
+  if (to.path === '/') {
+    if (role === 'Guard') {
+      return next({ name: 'GuardScan' });
+    } else if (role) {
+      return next({ path: `/${role.toLowerCase()}` });
+    }
   }
 
   // Role-based access control
   if (to.meta.role && role !== to.meta.role) {
-    console.log('Insufficient permissions');
-    // Redirect to appropriate dashboard based on role
-    return next(role === 'Guard' ? { name: 'GuardScan' } : { path: `/${role.toLowerCase()}` });
-  }
-
-  // Check role-based access
-  if (to.meta.role && user?.role && user.role !== to.meta.role) {
-    console.log('User role mismatch, redirecting to appropriate dashboard');
-    return next(user.role === 'Guard' ? { name: 'GuardScan' } : { path: `/${user.role.toLowerCase()}` });
+    console.log('Insufficient permissions, redirecting to appropriate dashboard');
+    // Redirect to appropriate dashboard based on user's role
+    if (role === 'Guard') {
+      return next({ name: 'GuardScan' });
+    } else {
+      return next({ path: `/${role.toLowerCase()}` });
+    }
   }
 
   // Allow navigation
