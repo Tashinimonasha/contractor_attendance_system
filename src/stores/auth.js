@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import router from '@/router';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -21,14 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true;
       if (firebaseUser) {
         try {
-          // Check if we already have user data in localStorage
-          const cachedUser = localStorage.getItem('user');
-          if (cachedUser) {
-            user.value = JSON.parse(cachedUser);
-            isLoading.value = false;
-          }
-
-          // Always fetch fresh data from Firestore
+          // Always fetch fresh data from Firestore first
           const userDocRef = doc(db, "users", firebaseUser.uid);
           const userDocSnap = await getDoc(userDocRef);
           
@@ -43,12 +36,19 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = updatedUser;
             localStorage.setItem('user', JSON.stringify(updatedUser));
             isFirstLogin.value = userData.isDefaultPassword === true;
+          } else {
+            // If user document doesn't exist in Firestore
+            await signOut(auth);
+            user.value = null;
+            localStorage.removeItem('user');
+            error.value = 'User profile not found. Please contact your administrator.';
           }
         } catch (err) {
           console.error('Error fetching user data:', err);
           await signOut(auth);
           user.value = null;
           localStorage.removeItem('user');
+          error.value = 'Error loading user data. Please try again.';
         }
       } else {
         user.value = null;
@@ -63,8 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
   const welcomeMessage = computed(() => user.value ? `Welcome back, ${user.value.name}` : '');
 
   /**
-   * Logs the user in with Firebase Auth, then fetches their custom data and role
-   * from the Firestore 'users' collection.
+   * Traditional Firebase Auth login
    */
   async function login(email, password) {
     error.value = null;
@@ -91,18 +90,20 @@ export const useAuthStore = defineStore('auth', () => {
         role: customUserData.role,
       };
       
-         // The dialog's visibility is controlled ONLY by this database field
-      
-         isFirstLogin.value = customUserData.isDefaultPassword === true;
-
+      // Check if first login
+      isFirstLogin.value = customUserData.isDefaultPassword === true;
       
       localStorage.setItem('user', JSON.stringify(user.value));
       localStorage.setItem('token', await firebaseUser.getIdToken());
-      routeUserToDestination();
+      
+      if (!isFirstLogin.value) {
+        routeUserToDestination();
+      }
+      
       return true;
     } catch (err) {
       console.error('Login failed:', err);
-      // Firebase error codes: https://firebase.google.com/docs/reference/js/auth.md#autherrorcodes
+      // Firebase error codes
       switch (err.code) {
         case 'auth/user-not-found':
           error.value = 'No account found for this email. Please check your email or contact admin.';
@@ -123,7 +124,7 @@ export const useAuthStore = defineStore('auth', () => {
           error.value = 'Network error. Please check your connection and try again.';
           break;
         default:
-          error.value = err.message ? err.message : 'Login failed. Please check your credentials or try again later.';
+          error.value = err.message || 'Login failed. Please check your credentials or try again later.';
       }
       return false;
     }
@@ -137,16 +138,16 @@ export const useAuthStore = defineStore('auth', () => {
       console.error("Cannot route user without a valid role.");
       return;
     }
-    const role = user.value.role.toLowerCase();
-    if (role === 'guard') {
+    const role = user.value.role;
+    if (role === 'Guard') {
       router.push({ name: 'GuardScan' });
-    } else if (role === 'admin') {
+    } else if (role === 'Admin') {
       router.push({ name: 'AdminDashboard' });
-    } else if (role === 'hr') {
+    } else if (role === 'HR') {
       router.push({ name: 'HRDashboard' });
-    } else if (role === 'finance') {
+    } else if (role === 'Finance') {
       router.push({ name: 'FinanceDashboard' });
-    } else if (role === 'manager') {
+    } else if (role === 'Manager') {
       router.push({ name: 'ManagerDashboard' });
     } else {
       router.push('/');

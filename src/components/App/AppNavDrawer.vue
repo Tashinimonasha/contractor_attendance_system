@@ -58,18 +58,19 @@ const railMode = computed(() => {
 });
 
 const navItems = computed(() => {
-  const role = authStore.user?.role?.toLowerCase();
-  if (role === 'admin') {
+  const role = authStore.user?.role;
+  const lowerRole = role?.toLowerCase();
+  if (role === 'Admin') {
     return [
       { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/admin/overview' },
       { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: '/admin/workers' },
       { title: 'System Users', icon: 'mdi-account-group-outline', to: '/admin/system-users' },
       { title: 'Management', icon: 'mdi-cog-outline', to: '/admin/management' },
     ];
-  } else if (role === 'hr' || role === 'finance' || role === 'manager') {
+  } else if (role === 'HR' || role === 'Finance' || role === 'Manager') {
     return [
-      { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: `/${role}/overview` },
-      { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: `/${role}/workers` },
+      { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: `/${lowerRole}/overview` },
+      { title: 'Workers', icon: 'mdi-account-hard-hat-outline', to: `/${lowerRole}/workers` },
     ];
   } else {
     return [

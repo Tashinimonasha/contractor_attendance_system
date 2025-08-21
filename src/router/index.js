@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { watch } from 'vue';
 
 // Layouts & Views
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
@@ -40,7 +41,7 @@ const routes = [
         path: 'admin',
         name: 'AdminDashboard',
         component: AdminDashboard, // This is the container for admin pages
-        meta: { role: 'admin' },
+        meta: { role: 'Admin' },
         children: [
           { path: '', redirect: '/admin/overview' }, // Default redirect
           { path: 'overview', name: 'AdminOverview', component: AdminOverview },
@@ -53,7 +54,7 @@ const routes = [
         path: 'hr',
         name: 'HRDashboard',
         component: HRDashboard,
-        meta: { role: 'hr' },
+        meta: { role: 'HR' },
         children: [
           { path: '', redirect: '/hr/overview' }, // Default redirect
           { path: 'overview', name: 'HROverview', component: HROverview },
@@ -65,7 +66,7 @@ const routes = [
         path: 'finance',
         name: 'FinanceDashboard',
         component: FinanceDashboard,
-        meta: { role: 'finance' },
+        meta: { role: 'Finance' },
         children: [
           { path: '', redirect: '/finance/overview' }, // Default redirect
           { path: 'overview', name: 'FinanceOverview', component: FinanceOverview },
@@ -77,7 +78,7 @@ const routes = [
         path: 'manager',
         name: 'ManagerDashboard',
         component: ManagerDashboard,
-        meta: { role: 'manager' },
+        meta: { role: 'Manager' },
         children: [
           { path: '', redirect: '/manager/overview' }, // Default redirect
           { path: 'overview', name: 'ManagerOverview', component: ManagerOverview },
@@ -108,7 +109,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   
-  // If auth is still initializing, wait for it
+  // Wait for auth state to be ready
   if (authStore.isLoading) {
     await new Promise(resolve => {
       const unwatch = watch(
@@ -124,25 +125,39 @@ router.beforeEach(async (to, from, next) => {
     });
   }
 
-  // Get cached user from localStorage if available
-  const cachedUser = localStorage.getItem('user');
-  const user = authStore.user || (cachedUser ? JSON.parse(cachedUser) : null);
+  // Use only the authStore user
+  const user = authStore.user;
+  const role = user?.role;
 
-  // If route requires auth and no user is found
-  if (to.meta.requiresAuth && !user) {
-    return next({ name: 'Login' });
+  // Public routes - allow access
+  if (!to.meta.requiresAuth) {
+    // If user is logged in and tries to access login page
+    if (to.name === 'Login' && role) {
+      return next(role === 'Guard' ? { name: 'GuardScan' } : { path: `/${role.toLowerCase()}` });
+    }
+    return next();
   }
 
-  // If user exists and tries to access login page
-  if (to.name === 'Login' && user?.role) {
-    const role = user.role.toLowerCase();
-    return next(role === 'guard' ? { name: 'GuardScan' } : { path: `/${role}` });
+  // Protected routes - check auth
+  if (!user) {
+    console.log('Auth required but no user found, redirecting to login');
+    return next({ 
+      name: 'Login',
+      query: { redirect: to.fullPath } // Save attempted URL
+    });
+  }
+
+  // Role-based access control
+  if (to.meta.role && role !== to.meta.role) {
+    console.log('Insufficient permissions');
+    // Redirect to appropriate dashboard based on role
+    return next(role === 'Guard' ? { name: 'GuardScan' } : { path: `/${role.toLowerCase()}` });
   }
 
   // Check role-based access
-  if (to.meta.role && user?.role && user.role.toLowerCase() !== to.meta.role.toLowerCase()) {
-    const role = user.role.toLowerCase();
-    return next(role === 'guard' ? { name: 'GuardScan' } : { path: `/${role}` });
+  if (to.meta.role && user?.role && user.role !== to.meta.role) {
+    console.log('User role mismatch, redirecting to appropriate dashboard');
+    return next(user.role === 'Guard' ? { name: 'GuardScan' } : { path: `/${user.role.toLowerCase()}` });
   }
 
   // Allow navigation

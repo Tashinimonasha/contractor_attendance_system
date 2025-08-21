@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user has admin role
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+    
+    // Check if user has HR role
+    function isHR() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'HR';
+    }
+    
+    // Check if user has Finance role
+    function isFinance() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Finance';
+    }
+    
+    // Check if user has Manager role
+    function isManager() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Manager';
+    }
+    
+    // Check if user has Guard role
+    function isGuard() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Guard';
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      // Allow reading own profile
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Allow admin to read and write any user document
+      allow read, write: if isAuthenticated() && isAdmin();
+    }
+
+    // Workers collection rules
+    match /workers/{workerId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        isHR() || 
+        isFinance() || 
+        isManager() || 
+        isGuard()
+      );
+      allow write: if isAuthenticated() && (
+        isAdmin() || 
+        isHR()
+      );
+    }
+
+    // Attendance records rules
+    match /attendance/{recordId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        isHR() || 
+        isFinance() || 
+        isManager()
+      );
+      allow write: if isAuthenticated() && (
+        isGuard() || 
+        isAdmin()
+      );
+    }
+
+    // System settings rules
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isAdmin();
+    }
+  }
+}
