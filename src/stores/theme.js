@@ -8,7 +8,8 @@ export const useThemeStore = defineStore('theme', () => {
 
   function toggleTheme() {
     isDark.value = !isDark.value;
-    theme.global.name.value = isDark.value ? 'myCustomDarkTheme' : 'myCustomLightTheme';
+    // Using the recommended method to change themes
+    theme.global.name.value = isDark.value ? 'dark' : 'light';
   }
 
   return { isDark, toggleTheme };

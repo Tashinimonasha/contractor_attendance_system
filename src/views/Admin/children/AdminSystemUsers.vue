@@ -90,7 +90,7 @@
             </v-row>
           </v-form>
           <p v-if="!isEditing" class="mt-4 text-caption text-medium-emphasis">
-            A temporary password ('password123') will be assigned.
+            A temporary password ('Password@123#') will be assigned.
           </p>
           <v-alert v-if="resultMessage" :type="isError ? 'error' : 'success'" class="mt-4" dense border="start">
             {{ resultMessage }}
