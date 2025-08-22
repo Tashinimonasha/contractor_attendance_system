@@ -13,6 +13,7 @@ import GuardScanView from '@/views/Guard/GuardScanView.vue';
 import AdminOverview from '@/views/Admin/children/AdminOverview.vue';
 import AdminWorkers from '@/views/Admin/children/AdminWorkers.vue';
 import AdminManagement from '@/views/Admin/children/AdminManagement.vue';
+import AdminSystemUsers from '@/views/Admin/children/AdminSystemUsers.vue';
  
 // HR Views
 import HRDashboard from '@/views/HR/HRDashboard.vue';
@@ -52,6 +53,7 @@ const routes = [
           { path: 'overview', name: 'AdminOverview', component: AdminOverview },
           { path: 'workers', name: 'AdminWorkers', component: AdminWorkers },
           { path: 'management', name: 'AdminManagement', component: AdminManagement },
+          
         ]
       },
       // HR Dashboard and Children

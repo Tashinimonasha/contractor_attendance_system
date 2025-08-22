@@ -7,20 +7,17 @@
   >
     <v-card rounded="lg">
       <v-card-title class="d-flex align-center">
-        <!-- Icon and title change based on whether it's a forced change or a regular one -->
         <v-icon :color="persistent ? 'warning' : 'primary'" class="mr-3">mdi-shield-lock-outline</v-icon>
         <span class="text-h5">{{ persistent ? 'Create New Password' : 'Change Password' }}</span>
         
         <v-spacer />
 
-        <!-- Show 'X' close button only if it's NOT a forced, persistent dialog -->
         <v-btn v-if="!persistent" icon flat @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
 
       <v-card-text class="pt-4">
-        <!-- Show a specific message for forced, first-time password changes -->
         <p v-if="persistent" class="mb-6 text-medium-emphasis">
           For security reasons, you must change your temporary password before continuing.
         </p>
@@ -59,7 +56,6 @@
           ></v-text-field>
         </v-form>
 
-        <!-- Display error messages in a clean alert box -->
         <v-alert
           v-if="errorMessage"
           type="error"
@@ -73,9 +69,21 @@
       </v-card-text>
 
       <v-card-actions class="pa-4">
+        <!-- THIS IS THE NEW LOGOUT BUTTON -->
+        <!-- It provides an escape hatch for users who are stuck -->
+        <v-btn
+          v-if="persistent"
+          variant="text"
+          color="grey"
+          @click="handleLogout"
+          :disabled="loading"
+        >
+          Logout
+        </v-btn>
+
         <v-spacer></v-spacer>
-        <!-- Show "Cancel" button only if it's not a forced change -->
-        <v-btn v-if="!persistent" text @click="closeDialog">Cancel</v-btn>
+
+        <v-btn v-if="!persistent" text @click="closeDialog" :disabled="loading">Cancel</v-btn>
         <v-btn 
           color="primary" 
           variant="flat" 
@@ -105,7 +113,6 @@ const emit = defineEmits(['update:modelValue']);
 
 // --- STATE MANAGEMENT ---
 const authStore = useAuthStore();
-const auth = getAuth();
 const passwordForm = ref(null);
 const loading = ref(false);
 const errorMessage = ref('');
@@ -128,17 +135,31 @@ const rules = {
 function closeDialog() {
   emit('update:modelValue', false);
   // Reset form state when closing
-  passwordForm.value?.reset();
-  errorMessage.value = '';
+  setTimeout(() => {
+    passwordForm.value?.reset();
+    errorMessage.value = '';
+  }, 300); // Delay to allow dialog to animate out
 }
 
+/**
+ * Logs the user out by calling the action in the Pinia store.
+ */
+function handleLogout() {
+  // The authStore.logout() function handles everything:
+  // signing out from Firebase, clearing local storage, and redirecting to the login page.
+  authStore.logout();
+}
+
+/**
+ * Handles the main logic for changing the password.
+ */
 async function handleChangePassword() {
-  // 1. Validate the form
   const { valid } = await passwordForm.value.validate();
   if (!valid) return;
 
   loading.value = true;
   errorMessage.value = '';
+  const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
@@ -148,39 +169,39 @@ async function handleChangePassword() {
   }
 
   try {
-    // 2. Re-authenticate the user with their current/temporary password to prove their identity
+    // 1. Re-authenticate the user with their current/temporary password
     const credential = EmailAuthProvider.credential(user.email, currentPassword.value);
     await reauthenticateWithCredential(user, credential);
     
-    // 3. If re-authentication is successful, update the password in Firebase Auth
+    // 2. Update the password in Firebase Authentication
     await updatePassword(user, newPassword.value);
 
-    // 4. Update the 'isDefaultPassword' flag in Firestore so this dialog doesn't show again
+    // 3. Update the 'isDefaultPassword' flag in Firestore
     const userDocRef = doc(db, "users", user.uid);
     await updateDoc(userDocRef, {
       isDefaultPassword: false
     });
     
-    // 5. Update the local state in the Pinia store to hide the dialog immediately
+    // 4. Update the local state in the Pinia store to hide the dialog
     if (props.persistent) {
       authStore.isFirstLogin = false;
-    } else {
-      // If it's a regular change, just close the dialog
+    }
+    
+    // Close the dialog if it's a regular (non-persistent) change
+    if (!props.persistent) {
       closeDialog();
     }
     
-    // You could also show a success snackbar here
     console.log("Password updated successfully!");
 
   } catch (error) {
     console.error("Error updating password:", error.code);
-    // Provide user-friendly error messages
-    if (error.code === 'auth/wrong-password') {
-      errorMessage.value = "The current (or temporary) password you entered is incorrect.";
+    // Provide user-friendly error messages based on the error code
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      errorMessage.value = "The temporary password you entered is incorrect. Please try again.";
     } else if (error.code === 'auth/weak-password') {
       errorMessage.value = "The new password is too weak. Please choose a stronger one.";
-    }
-    else {
+    } else {
       errorMessage.value = "An unexpected error occurred. Please try again.";
     }
   } finally {
@@ -188,3 +209,6 @@ async function handleChangePassword() {
   }
 }
 </script>
+
+
+ 
