@@ -1,9 +1,9 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+ import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions"; // Import the initializer
 
+// ... your firebaseConfig object ...
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBKg5E_RaYY3bZTLCqd8U9TLVoiMc4Kn3U",
@@ -14,19 +14,11 @@ const firebaseConfig = {
   appId: "1:260972776282:web:8746fea25d2f323601c163"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
-const functions = getFunctions(app, "asia-south1");
+// Initialize functions ONCE with the correct region
+const functions = getFunctions(app, "asia-south1"); 
 
-// Connect to emulators in development (commented out for production)
-// if (import.meta.env.DEV) {
-//   connectAuthEmulator(auth, "http://localhost:9099");
-//   connectFirestoreEmulator(db, "localhost", 8080);
-//   connectFunctionsEmulator(functions, "localhost", 5001);
-// }
-
-export { auth, db, functions };
+// Export the configured instance
+export { auth, db, functions }; 
