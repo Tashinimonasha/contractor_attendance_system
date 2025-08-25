@@ -1,18 +1,18 @@
 <template>
-  <v-app-bar flat class="border-b">
-    <!-- This button will only show on mobile to toggle the temporary drawer -->
-    <v-app-bar-nav-icon 
-      class="d-md-none" 
-      @click.stop="$emit('toggle-drawer')" 
+  <!-- 
+    THIS IS THE FIX:
+    1. Add the 'color' prop. You can use a predefined color like "primary" or a specific hex code.
+    2. Add a class like 'text-white' to ensure icons and text are visible.
+  -->
+  <v-app-bar flat class="border-b text-white" color="blue-darken-4">
+    <!-- Logo -->
+    <v-img 
+      src="@/assets/printcareLogo.png" 
+      max-height="80"
+      max-width="250"
+      contain
+      class="ml-4 mr-3"
     />
-    
-    <!-- The Logo will be in the NavDrawer now, so we can remove it from here to avoid duplication -->
-    <!-- <v-img src="/src/assets/printcareLogo.png" ... /> -->
-
-    <v-toolbar-title class="font-weight-bold">
-      <!-- We can display the current page's title dynamically -->
-      {{ $route.name }}
-    </v-toolbar-title>
     
     <v-spacer></v-spacer>
     
@@ -52,29 +52,27 @@
     </v-menu>
 
     <!-- Dialogs -->
-    <confirm-dialog
-      :model-value="logoutDialog"
-      @update:model-value="logoutDialog = false"
-      title="Confirm Logout"
-      text="Are you sure you want to sign out?"
-      @confirm="authStore.logout()"
-    />
-     <change-password-dialog
-      :model-value="changePasswordDialog"
-      @update:model-value="changePasswordDialog = false"
-    />
+<confirm-dialog
+  :model-value="logoutDialog"
+  @update:model-value="logoutDialog = false"
+  title="Confirm Logout"
+  text="Are you sure you want to sign out?"
+  @confirm="authStore.logout()"
+/>
+ <change-password-dialog
+  :model-value="changePasswordDialog"
+  @update:model-value="changePasswordDialog = false"
+/>
   </v-app-bar>
 </template>
 
 <script setup>
+// The <script> section does not need any changes for this styling update.
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useThemeStore } from '@/stores/theme'; // Make sure you have this store
+import { useThemeStore } from '@/stores/theme';
 import ConfirmDialog from './ConfirmDialog.vue';
 import ChangePasswordDialog from '../Core/ChangePasswordDialog.vue';
-
-// Define the event this component can emit
-defineEmits(['toggle-drawer']);
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
