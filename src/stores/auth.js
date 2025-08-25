@@ -47,6 +47,14 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = updatedUser;
             localStorage.setItem('user', JSON.stringify(updatedUser));
             isFirstLogin.value = userData.isDefaultPassword === true;
+            
+            // If we're on the login page but already authenticated,
+            // route the user to their destination 
+            if (window.location.pathname === '/login') {
+              console.log('User already authenticated on login page, routing to destination');
+              // Slight delay to ensure auth state is fully processed
+              setTimeout(() => routeUserToDestination(), 100); 
+            }
           } else {
             // If user document doesn't exist in Firestore
             await signOut(auth);
@@ -107,9 +115,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(user.value));
       localStorage.setItem('token', await firebaseUser.getIdToken());
       
-      if (!isFirstLogin.value) {
-        routeUserToDestination();
-      }
+      // Always route user after login, regardless of whether it's first login
+      // This ensures consistent navigation behavior
+      routeUserToDestination();
       
       return true;
     } catch (err) {
@@ -150,30 +158,35 @@ export const useAuthStore = defineStore('auth', () => {
       return;
     }
     
+    console.log("Routing user to destination based on role:", user.value.role);
+    
     // Check if there's a saved redirect URL from before login
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPath = urlParams.get('redirect');
     
     if (redirectPath && redirectPath !== '/login') {
       // Navigate to the originally requested page
+      console.log("Redirecting to saved path:", redirectPath);
       router.push(redirectPath);
       return;
     }
     
     const role = user.value.role;
+    // Fix routing by navigating to the correct route names
     if (role === 'Guard') {
       router.push({ name: 'GuardScan' });
     } else if (role === 'Admin') {
-      router.push({ name: 'AdminDashboard' });
+      router.push({ name: 'AdminOverview' }); // Changed to AdminOverview
     } else if (role === 'HR') {
-      router.push({ name: 'HRDashboard' });
+      router.push({ name: 'HROverview' }); // Changed to HROverview
     } else if (role === 'Finance') {
-      router.push({ name: 'FinanceDashboard' });
+      router.push({ name: 'FinanceOverview' }); // Changed to FinanceOverview
     } else if (role === 'Manager') {
-      router.push({ name: 'ManagerDashboard' });
+      router.push({ name: 'ManagerOverview' }); // Changed to ManagerOverview
     } else {
       router.push('/');
     }
+    console.log("Navigation triggered for role:", role);
   }
 
 

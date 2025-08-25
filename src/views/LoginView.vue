@@ -169,9 +169,12 @@ const password = ref('');
 const showPassword = ref(false);
 const loading = ref(false);
 
-// CORRECTED: The handleLogin function should ONLY handle logging in.
-// The routing logic is handled automatically by your auth store and router.
+// Enhanced handleLogin function with proper error handling and routing
 const handleLogin = async () => {
+  // Clear any previous errors
+  authStore.error = null;
+  
+  // Form validation
   if (!email.value && !password.value) {
     authStore.error = 'Please fill in both email and password.';
     return;
@@ -184,9 +187,24 @@ const handleLogin = async () => {
     authStore.error = 'Please enter your password.';
     return;
   }
+  
+  // Set loading state
   loading.value = true;
-  await authStore.login(email.value, password.value);
-  loading.value = false;
+  
+  // Attempt login
+  try {
+    const success = await authStore.login(email.value, password.value);
+    
+    if (!success && !authStore.error) {
+      // If login fails without a specific error, set a generic error
+      authStore.error = 'Login failed. Please check your credentials and try again.';
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    authStore.error = 'An unexpected error occurred. Please try again.';
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
