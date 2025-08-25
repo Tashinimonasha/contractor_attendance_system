@@ -1,107 +1,123 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { watch } from 'vue';
 
-// --- Import Layouts & Standalone Views ---
+// Layouts & Views
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import LoginView from '@/views/LoginView.vue';
+import AdminDashboard from '@/views/Admin/AdminDashboard.vue';
 import GuardScanView from '@/views/Guard/GuardScanView.vue';
 
-// --- Import ALL Your Dashboard "Container" Components ---
-const AdminDashboard = () => import('@/views/Admin/AdminDashboard.vue');
-const HRDashboard = () => import('@/views/HR/HRDashboard.vue');
-const FinanceDashboard = () => import('@/views/Finance/FinanceDashboard.vue');
-const ManagerDashboard = () => import('@/views/Manager/ManagerDashboard.vue');
 
-// --- Import Your "Child" Page Components ---
-const AdminOverview = () => import('@/views/Admin/children/AdminOverview.vue');
-const AdminWorkers = () => import('@/views/Admin/children/AdminWorkers.vue');
-const AdminManagement = () => import('@/views/Admin/children/AdminManagement.vue');
-const AdminSystemUsers = () => import('@/views/Admin/children/AdminSystemUsers.vue');
+// Admin Child Views
+import AdminOverview from '@/views/Admin/children/AdminOverview.vue';
+import AdminWorkers from '@/views/Admin/children/AdminWorkers.vue';
+import AdminManagement from '@/views/Admin/children/AdminManagement.vue';
+import AdminSystemUsers from '@/views/Admin/children/AdminSystemUsers.vue';
+ 
+// HR Views
+import HRDashboard from '@/views/HR/HRDashboard.vue';
+import HROverview from '@/views/HR/children/HROverview.vue';
+import HRWorkers from '@/views/HR/children/HRWorkers.vue';
 
-// --- THE ROUTE DEFINITIONS ---
+// Finance Views
+import FinanceDashboard from '@/views/Finance/FinanceDashboard.vue';
+import FinanceOverview from '@/views/Finance/children/FinanceOverview.vue';
+import FinanceWorkers from '@/views/Finance/children/FinanceWorkers.vue';
+
+// Manager Views
+import ManagerDashboard from '@/views/Manager/ManagerDashboard.vue';
+import ManagerOverview from '@/views/Manager/children/ManagerOverview.vue';
+import ManagerWorkers from '@/views/Manager/children/ManagerWorkers.vue';
+
+
+// Inside src/router/index.js
+
 const routes = [
-  // Public route
   { path: '/login', name: 'Login', component: LoginView },
-  
-  // Protected routes that share the main DashboardLayout
   {
     path: '/',
     component: DashboardLayout,
     meta: { requiresAuth: true },
     children: [
-      // A default route that automatically redirects any logged-in user
+      // A default route that will redirect any logged-in user who lands on "/"
       {
         path: '',
-        name: 'DashboardRedirect',
         redirect: () => {
           const authStore = useAuthStore();
           const role = authStore.user?.role;
           if (role) {
-            if (role === 'Guard') return { name: 'GuardScan' };
-            // Redirects to /admin, /hr, etc. based on the capitalized role
-            return { path: `/${role.toLowerCase()}` };
+            const path = `/${role.toLowerCase()}`;
+            return { path: path };
           }
-          // Fallback if role is somehow missing after login
-          return { name: 'Login' };
+          return { name: 'Login' }; // Fallback
         },
       },
-      // Admin Route
+
+      // --- ADMIN ROUTE (Corrected Structure) ---
       {
         path: 'admin',
+        // The parent is just a layout container and no longer needs a name.
         component: AdminDashboard,
         meta: { role: 'Admin' },
-        redirect: { name: 'AdminOverview' }, // Redirect /admin to its default child
+        // The redirect to the default child is now on the parent.
+        redirect: { name: 'AdminOverview' }, 
         children: [
+          // The name for the default view is now clearly on the overview route.
           { path: 'overview', name: 'AdminOverview', component: AdminOverview },
           { path: 'workers', name: 'AdminWorkers', component: AdminWorkers },
-          { path: 'system-users', name: 'AdminSystemUsers', component: AdminSystemUsers },
           { path: 'management', name: 'AdminManagement', component: AdminManagement },
+          { path: 'system-users', name: 'AdminSystemUsers', component: AdminSystemUsers },
         ]
       },
-      // HR Route
+
+      // --- HR ROUTE (Corrected Structure) ---
       {
         path: 'hr',
         component: HRDashboard,
         meta: { role: 'HR' },
         redirect: { name: 'HROverview' },
         children: [
-          { path: 'overview', name: 'HROverview', component: () => import('@/views/HR/children/HROverview.vue') },
-          { path: 'workers', name: 'HRWorkers', component: () => import('@/views/HR/children/HRWorkers.vue') },
+          { path: 'overview', name: 'HROverview', component: HROverview },
+          { path: 'workers', name: 'HRWorkers', component: HRWorkers },
         ]
       },
-      // Finance Route
+      
+      // --- FINANCE ROUTE (Corrected Structure) ---
       {
         path: 'finance',
         component: FinanceDashboard,
         meta: { role: 'Finance' },
         redirect: { name: 'FinanceOverview' },
         children: [
-          { path: 'overview', name: 'FinanceOverview', component: () => import('@/views/Finance/children/FinanceOverview.vue') },
-          { path: 'workers', name: 'FinanceWorkers', component: () => import('@/views/Finance/children/FinanceWorkers.vue') },
+          { path: 'overview', name: 'FinanceOverview', component: FinanceOverview },
+          { path: 'workers', name: 'FinanceWorkers', component: FinanceWorkers },
         ]
       },
-      // Manager Route
+      
+      // --- MANAGER ROUTE (Corrected Structure) ---
       {
         path: 'manager',
         component: ManagerDashboard,
         meta: { role: 'Manager' },
         redirect: { name: 'ManagerOverview' },
         children: [
-          { path: 'overview', name: 'ManagerOverview', component: () => import('@/views/Manager/children/ManagerOverview.vue') },
-          { path: 'workers', name: 'ManagerWorkers', component: () => import('@/views/Manager/children/ManagerWorkers.vue') },
+          { path: 'overview', name: 'ManagerOverview', component: ManagerOverview },
+          { path: 'workers', name: 'ManagerWorkers', component: ManagerWorkers },
         ]
       },
     ]
   },
-  // Guard Route (does not use the main layout)
+   
+
+// ... (Your router instance and beforeEach guard do not need to change)
   {
     path: '/guard/scan',
     name: 'GuardScan',
     component: GuardScanView,
-    meta: { requiresAuth: true, role: 'Guard' }
+    meta: { requiresAuth: true, role: 'Guard' },
   },
-  // Catch-all for any unknown URL, redirects to login
-  { path: '/:pathMatch(.*)*', redirect: { name: 'Login' } },
+  { path: '/:pathMatch(.*)*', redirect: '/login' },
 ];
 
 const router = createRouter({
@@ -109,33 +125,77 @@ const router = createRouter({
   routes,
 });
 
-// --- THE NEW, SIMPLIFIED, AND ROBUST NAVIGATION GUARD ---
-router.beforeEach((to, from, next) => {
+// src/router/index.js
+ 
+
+// --- NAVIGATION GUARD ---
+// Enhanced navigation guard with better refresh handling and route restoration
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated;
-  const userRole = authStore.user?.role; // e.g., 'Admin', 'HR'
-
-  // If the route requires authentication AND the user is NOT logged in...
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    // ...redirect to the login page.
-    return next({ name: 'Login' });
-  }
-
-  // If the user is ALREADY logged in AND is trying to access the login page...
-  if (isAuthenticated && to.name === 'Login') {
-    // ...don't let them. Send them to their default dashboard instead.
-    const homePath = userRole ? `/${userRole.toLowerCase()}` : '/';
-    return next({ path: homePath });
-  }
   
-  // If the user is ALREADY logged in AND is trying to access a page they don't have permission for...
-  if (isAuthenticated && to.meta.role && userRole !== to.meta.role) {
-      // ...don't let them. Send them back to their own dashboard.
-      const homePath = `/${userRole.toLowerCase()}`;
-      return next({ path: homePath });
+  // For non-auth required routes, allow immediate access
+  if (!to.meta.requiresAuth) {
+    // If user is logged in and tries to access login page, redirect to their dashboard
+    if (to.name === 'Login' && authStore.isAuthenticated) {
+      const role = authStore.user?.role;
+      if (role === 'Guard') {
+        return next({ name: 'GuardScan' });
+      } else if (role) {
+        return next({ path: `/${role.toLowerCase()}` });
+      }
+    }
+    return next();
   }
 
-  // Otherwise, the navigation is valid, so allow it.
+  // For protected routes, wait for auth state if still loading
+  if (authStore.isLoading) {
+    await new Promise(resolve => {
+      const unwatch = watch(
+        () => authStore.isLoading,
+        (loading) => {
+          if (!loading) {
+            unwatch();
+            resolve();
+          }
+        },
+        { immediate: true }
+      );
+    });
+  }
+
+  const user = authStore.user;
+  const role = user?.role;
+
+  // If no user after auth is loaded, redirect to login but preserve the intended route
+  if (!user) {
+    console.log('Auth required but no user found, redirecting to login');
+    return next({ 
+      name: 'Login',
+      query: { redirect: to.fullPath } // Save attempted URL for restoration after login
+    });
+  }
+
+  // If accessing root path, redirect to appropriate dashboard
+  if (to.path === '/') {
+    if (role === 'Guard') {
+      return next({ name: 'GuardScan' });
+    } else if (role) {
+      return next({ path: `/${role.toLowerCase()}` });
+    }
+  }
+
+  // Role-based access control
+  if (to.meta.role && role !== to.meta.role) {
+    console.log('Insufficient permissions, redirecting to appropriate dashboard');
+    // Redirect to appropriate dashboard based on user's role
+    if (role === 'Guard') {
+      return next({ name: 'GuardScan' });
+    } else {
+      return next({ path: `/${role.toLowerCase()}` });
+    }
+  }
+
+  // Allow navigation
   return next();
 });
 

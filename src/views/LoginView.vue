@@ -153,7 +153,7 @@ import ForgotPasswordDialog from '@/components/Core/ForgotPasswordDialog.vue';
 
 // Import your images from the assets folder
 import logo from '@/assets/printcareLogo.png';
-import illustration from '@/assets/image1.jpg'; // Make sure this file exists
+ 
 
 const authStore = useAuthStore();
 
