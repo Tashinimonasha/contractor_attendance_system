@@ -63,7 +63,7 @@
         
         <template #item.actions="{ item }">
           <v-btn icon="mdi-pencil" size="small" variant="text" @click="editUser(item)" />
-          <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="deleteUser(item)" />
+ 
         </template>
       </v-data-table>
     </v-card>

@@ -26,8 +26,7 @@
           <v-list class="py-0">
             <v-list-item v-for="c in companies" :key="c.id" :title="c.name" :subtitle="c.fullName">
               <template v-slot:append>
-                <v-btn icon="mdi-pencil-outline" variant="text" size="small" color="orange" @click="openDialog('Company', c)"></v-btn>
-                <v-btn icon="mdi-delete-outline" variant="text" size="small" color="red" @click="openDeleteDialog('Company', c)"></v-btn>
+                <v-btn icon="mdi-pencil-outline" variant="text" size="small" color="orange" @click="openDialog('Company', c)"></v-btn>    
               </template>
             </v-list-item>
           </v-list>
@@ -48,7 +47,6 @@
             <v-list-item v-for="d in departments" :key="d.id" :title="d.name" :subtitle="d.companyname">
                <template v-slot:append>
                 <v-btn icon="mdi-pencil-outline" variant="text" size="small" color="orange" @click="openDialog('Department', d)"></v-btn>
-                <v-btn icon="mdi-delete-outline" variant="text" size="small" color="red" @click="openDeleteDialog('Department', d)"></v-btn>
               </template>
             </v-list-item>
           </v-list>
@@ -69,7 +67,6 @@
              <v-list-item v-for="c in contractors" :key="c.id" :title="c.name" :subtitle="getContractorDepartments(c)">
                <template v-slot:append>
                 <v-btn icon="mdi-pencil-outline" variant="text" size="small" color="orange" @click="openDialog('Contractor', c)"></v-btn>
-                <v-btn icon="mdi-delete-outline" variant="text" size="small" color="red" @click="openDeleteDialog('Contractor', c)"></v-btn>
               </template>
             </v-list-item>
           </v-list>
@@ -133,7 +130,7 @@ const loading = ref(true);
 const form = ref(null);
 const dialog = reactive({ show: false, type: '', isEditing: false, item: null, loading: false, message: '', isError: false });
 const deleteDialog = reactive({ show: false, type: '', item: null });
-const defaultFormData = { name: '', fullName: '', companyId: null, assignedDepartments: [] };
+const defaultFormData = { name: '', companyId: null, assignedDepartments: [] };
 const formData = reactive({ ...defaultFormData });
 const rules = { required: v => !!v || 'This field is required' };
 
@@ -163,7 +160,7 @@ function openDialog(type, item = null) {
   if (item) { // Editing
     dialog.isEditing = true;
     dialog.item = item;
-    if (type === 'Company') Object.assign(formData, { name: item.name, fullName: item.fullName });
+    if (type === 'Company') Object.assign(formData, { name: item.name});
     if (type === 'Department') Object.assign(formData, { name: item.name, companyId: item.companyId });
     if (type === 'Contractor') Object.assign(formData, { name: item.name, assignedDepartments: item.assignedDepartments });
   } else { // Adding
