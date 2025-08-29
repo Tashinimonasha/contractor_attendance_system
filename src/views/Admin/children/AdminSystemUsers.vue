@@ -50,15 +50,17 @@
 
         <!-- ADDED: Template slot for the Status column -->
         <template #item.status="{ item }">
-          <v-chip
-            :color="item.status === 'Active' ? 'green-lighten-2' : 'grey-lighten-2'"
+          <v-btn
+            :color="item.status === 'Active' ? 'green-darken-2' : 'red-darken-2'"
+            variant="flat"
             size="small"
-            pill
-            variant="elevated"
-            elevation="1"
+            class="status-btn"
+            style="min-width:80px;border-radius:20px;font-weight:600;letter-spacing:0.5px;"
+            disabled
           >
-            {{ item.status }}
-          </v-chip>
+            <span v-if="item.status === 'Active'" style="color:#fff;">Active</span>
+            <span v-else style="color:#fff;">Inactive</span>
+          </v-btn>
         </template>
         
         <template #item.actions="{ item }">
@@ -113,6 +115,7 @@
 import { ref, computed, reactive, onMounted } from 'vue';
 import { httpsCallable } from "firebase/functions";
 import { functions } from '@/firebase';
+import { useRouter } from 'vue-router';
 
 // --- STATE ---
 const users = ref([]);
@@ -293,10 +296,31 @@ function getRoleColor(role) {
   
   return roleColors[role] || roleColors.default;
 }
+
+// --- PASSWORD CHANGE REDIRECT LOGIC ---
+const router = useRouter();
+
+// Simulated: Replace with your real user object and password status check
+const currentUser = ref({
+  id: 'user123',
+  name: 'Test User',
+  mustChangePassword: false // Set true if user must change password
+});
+
+onMounted(() => {
+  // If user must change password, redirect to password change page/dialog
+  if (currentUser.value.mustChangePassword) {
+    router.replace({ name: 'ChangePassword' }); // Or show dialog
+  }
+});
 </script>
 
 <style scoped>
 /* Make role chips more attractive */
+.status-btn {
+  box-shadow: 0 2px 8px 0 rgba(180, 200, 220, 0.10);
+  cursor: default;
+}
 .v-chip {
   font-weight: 500 !important;
   letter-spacing: 0.5px;
